@@ -27,10 +27,10 @@ if errorlevel 1 (
 
 ::::::
 :: Modificar el archivo .yaml para actualizar el nombre del entorno
-set "yaml_file=nombre_del_archivo.yaml"
+set "yaml_file=default.yaml"
 for /f "delims=" %%i in (%yaml_file%) do (
     set "line=%%i"
-    if "!line!"=="name: testenv" (
+    if "!line!"=="name: default" (
         echo name: %env_name% >> temp.yaml
     ) else (
         echo !line! >> temp.yaml

@@ -1,0 +1,22 @@
+name: shinyscrap
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pandas
+  - numpy
+  - matplotlib
+  - scikit-learn
+  - scipy
+  - seaborn
+  - selenium
+  - requests
+  - statsmodels
+  - sympy
+  - sqlalchemy
+  - pyodbc
+  - openpyxl
+  - ipykernel
+  - polars
+  - beautifulsoup4

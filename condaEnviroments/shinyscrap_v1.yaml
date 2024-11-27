@@ -1,10 +1,7 @@
-name: testenv
+name: shinyscrap
 channels:
   - defaults
   - conda-forge
-  - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/r
-  - https://repo.anaconda.com/pkgs/msys2
 dependencies:
   - _openmp_mutex=4.5=2_gnu
   - attrs=24.2.0=pyh71513ae_0
