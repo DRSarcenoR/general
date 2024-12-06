@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CHN',
-    version='1.0',
+    version='1.1.0',
     description='Métodos útiles y recurrentes en roles desempeñados en el CHN.',
     author='Diego Sarceño',
     author_email='dsarceno68@gmail.com',
@@ -14,6 +14,6 @@ setup(
     ],
     include_package_data=True,
     package_data={
-        'metodosINE' : ['metodosINE/credenciales.json']
+        'metodosINE' : ['CHN/credenciales.json']
     }
 )
