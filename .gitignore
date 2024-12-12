@@ -28,3 +28,10 @@ replay_pid*
 # información sensible
 *.env
 *.json
+
+
+# carpetas no necesarias para estar en github
+dist/
+build/
+CHN.egg-info/
+MANIFEST.in

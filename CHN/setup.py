@@ -2,18 +2,37 @@ from setuptools import setup, find_packages
 
 setup(
     name='CHN',
-    version='1.1.0',
-    description='Métodos útiles y recurrentes en roles desempeñados en el CHN.',
+    version='1.1.2',
+    description='Colección de métodos y funciones útiles para análisis y ciencia de datos, web-scrapping y tareas comunes.',
     author='Diego Sarceño',
     author_email='dsarceno68@gmail.com',
     packages=find_packages(),
     install_requires=[
-        'pyodbc==5.2.0',
-        'pandas==2.2.3',
-        'SQLAlchemy==2.0.36'
+        'pandas',
+        'numpy',
+        'matplotlib',
+        'scikit-learn',
+        'scipy',
+        'seaborn',
+        'selenium',
+        'requests',
+        'statsmodels',
+        'sympy',
+        'sqlalchemy',
+        'pyodbc',
+        'openpyxl',
+        'ipykernel',
+        'polars',
+        'beautifulsoup4'
     ],
     include_package_data=True,
     package_data={
-        'metodosINE' : ['CHN/credenciales.json']
-    }
+        'CHN': ['CHN/credenciales.json'],
+    },
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+    ],
+    python_requires='==3.13.0',
 )
