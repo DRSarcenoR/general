@@ -8,13 +8,16 @@
 # 
 # 
 # ------------------------------>
-# paquetes necesarios
-import json
+# <---- paquetes necesarios ---->
+
+# analisis
 import pandas as pd
-import pyodbc
-import warnings
+
+# conexones dbs
 import sqlite3
-import locale
+import pyodbc
+
+# web-scrapping
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -23,12 +26,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+
+# apoyo
 from datetime import datetime, timedelta
 import time
-#from importlib.resources import pkg_resources
+import warnings
+import locale
 import time
-from datetime import datetime
+
+# archivos del sistema
 import os
+
+# APIs o PseudoAPIs
 import win32com.client as win32
 # ------------------------------>
 
