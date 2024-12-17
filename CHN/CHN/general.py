@@ -17,10 +17,19 @@ import sqlite3
 import locale
 import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from datetime import datetime, timedelta
+import time
 #from importlib.resources import pkg_resources
 import time
 from datetime import datetime
 import os
+import win32com.client as win32
 # ------------------------------>
 
 
@@ -117,6 +126,76 @@ class Scrapping:
                 print("Ocurrió un error inesperado:", e)
         else:
             print('En caso de buscar un día distitno al día de hoy, esperar a que se agregue esta opción al codigo fuente.')
+    
+
+    def tipoCambio(self, fecha : str) -> float:
+        # url y path al driver
+        PATH_TO_DRIVER = 'C:/chromedriver-win32/chromedriver-win32/chromedriver.exe'
+        url = 'https://www.banguat.gob.gt/tipo_cambio/'
+
+
+        # creamos el servicio
+        service = Service(PATH_TO_DRIVER)
+
+        # inicializamos el navegador con el servicio
+        driver = webdriver.Chrome(service=service)
+
+        # esperamos a que cargue bien
+        WebDriverWait(driver, 5)
+
+        try: 
+            # navegamos a la página
+            driver.get(url)
+            print('URL cargado')
+
+            # Calcular la fecha del día anterior
+            #fecha_ayer = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y')
+
+            # Esperar que los campos de fecha estén presentes
+            campo_fecha_apartir = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "fecha_apartir"))
+            )
+            campo_fecha_hasta = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "fecha_hasta"))
+            )
+            print('Campos Cargados')
+
+
+            # Limpiar y escribir la fecha en los campos
+            #campo_fecha_apartir = driver.find_element(By.ID, "icon_fecha_apartir")
+            campo_fecha_apartir = driver.find_element(By.ID, "fecha_apartir")
+            campo_fecha_apartir.clear()
+            campo_fecha_apartir.send_keys(fecha)
+            campo_fecha_apartir.send_keys(Keys.RETURN)  # Asegurar el ingreso
+
+            print('Llenamos los campos con las fechas')
+
+            time.sleep(3)
+
+            print("La página cargó correctamente con la fecha ingresada.")
+
+
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            print('información extraida')
+        except Exception as e:
+            print(f"Ocurrió un error: {e}")
+
+        finally:
+            # Cerrar el navegador después de 5 segundos
+            time.sleep(5)
+            driver.quit()
+
+        # ubicamos tipo de cambio en el html
+        rows = soup.select('#table_Data tr')
+
+        for row in rows:
+            cells = row.find_all('td')
+            if cells and cells[0].get_text(strip=True) == fecha:
+                tipo_cambio = float(cells[1].get_text(strip=True))
+                break
+        
+        return tipo_cambio
 
 
 
@@ -193,6 +272,50 @@ class Other:
                     archivo.write(f"{espacios}└── {item}\n")
                 else:
                     archivo.write(f"{espacios}├── {item}\n")
+    
+    def enviar_correo(destinatario : str, asunto : str, cuerpo : str, ruta_adjunto : str | None = None) -> None:
+        """
+        Envía un correo electrónico a través de Microsoft Outlook.
+
+        Esta función crea y envía un correo electrónico con el asunto, cuerpo y destinatario especificados.
+        Si se proporciona una ruta de archivo válida, se adjuntará el archivo al correo.
+
+        Parámetros:
+        destinatario (str): Dirección de correo electrónico del destinatario.
+        asunto (str): Asunto del correo electrónico.
+        cuerpo (str): Cuerpo del mensaje del correo electrónico.
+        ruta_adjunto (str | None, opcional): Ruta completa al archivo que se desea adjuntar al correo. 
+            Si no se proporciona o es `None`, no se adjuntará ningún archivo. El valor predeterminado es `None`.
+
+        Excepciones:
+        Si ocurre un error al enviar el correo (por ejemplo, Outlook no está configurado o el archivo adjunto no existe), 
+        se capturará la excepción y se imprimirá un mensaje de error.
+
+        Ejemplo de uso:
+        enviar_correo("destinatario@ejemplo.com", "Asunto del correo", "Este es el cuerpo del correo.", "C:\\ruta\\al\\archivo.pdf")
+
+        """
+        try:
+            # accedemos a la aplicacion de outlook
+            outlook = win32.Dispatch('outlook.application')
+
+            # creamos un objeto de correo
+            correo = outlook.CreateItem(0) # 0 es un correo
+
+            # propiedades del correo
+            correo.To = destinatario
+            correo.Subject = asunto
+            correo.Body = cuerpo
+
+            # adjuntar archivo si se proporciona la ruta
+            if ruta_adjunto and os.path.exists(ruta_adjunto):
+                correo.Attachments.Add(ruta_adjunto)
+
+            # enviamos el correo
+            correo.Send()
+            print('Correo enviado exitosamente')
+        except Exception as e:
+            print(f'Error: {e}')
 
 
 
