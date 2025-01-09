@@ -12,6 +12,7 @@
 
 # analisis
 import pandas as pd
+import numpy as np
 
 # conexones dbs
 import sqlite3
@@ -26,6 +27,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+
+# graficas
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# ML
+from sklearn.cluster import KMeans
 
 # apoyo
 from datetime import datetime, timedelta
@@ -389,6 +397,48 @@ class Decorators:
             print("\____   )MMMMMM|   .'")
             print("     `-'       `--' ")
             return None
+
+
+class Outliers:
+    def __init__(self) -> None:
+        pass
+
+    def elbow_test(X_scaled: np.ndarray, cluster_range: range = range(1,11)) -> None: 
+        # rango de clusters a probar
+        rangek = cluster_range
+        inertia_values = []
+
+        # aplicamos kmeans varias veces
+        for k in rangek:
+            kmeans = KMeans(n_clusters=k, random_state=27)
+            kmeans.fit(X_scaled)
+            inertia_values.append(kmeans.inertia_)
+
+
+        # 4. Graficar el método del codo
+        plt.figure(figsize=(8,6))
+        plt.plot(rangek, inertia_values, marker='o', linestyle='--', color='b')
+        plt.title('Numero de clusters - Inercia')
+        plt.xlabel('Número de Clústeres (k)')
+        plt.ylabel('Inercia (Suma de Errores Cuadráticos)')
+        plt.grid(True)
+        plt.show()
+
+
+    def scatter_cluster(df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster') -> None: 
+        # scatter plot
+        sns.scatterplot(
+            x=df[x_col],
+            y=df[y_col],
+            hue=df[cluster_col],
+            palette='tab10'
+        )
+        plt.title('Clustering de empleados basado en diferencias')
+        plt.xlabel(x_col)
+        plt.ylabel(y_col)
+        plt.legend(title='Cluster')
+        plt.show()
+
 
 
 
