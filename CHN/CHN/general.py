@@ -399,7 +399,7 @@ class Decorators:
             return None
 
 
-class Outliers:
+class Analysis:
     def __init__(self) -> None:
         pass
 
@@ -438,6 +438,98 @@ class Outliers:
         plt.ylabel(y_col)
         plt.legend(title='Cluster')
         plt.show()
+
+
+    def percentiles(self, df, columna, pasos=1):
+        # Generar una lista de percentiles (de 0% a 100%) con el paso especificado
+        percentiles = [i / 100 for i in range(0, 101, pasos)]  # Por defecto, pasos=1 (0%, 1%, 2%, ..., 100%)
+        
+        # Calcular los valores de los percentiles para la columna especificada
+        percentiles_values = df[columna].quantile(percentiles)
+        
+        # Crear un DataFrame con los resultados de los percentiles
+        percentiles_table = pd.DataFrame(percentiles_values).reset_index()
+        
+        # Renombrar las columnas para mayor claridad
+        percentiles_table.columns = ['Percentil', 'Valor']
+        
+        return percentiles_table
+    
+
+    def tukey_alternative(df: pd.DataFrame, varColumn: str, outputColumn: str, c: float =2.5, low_percentile: float = 0.05, high_percentile: float = 0.95, filter: bool = True) -> pd.DataFrame:
+        # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
+        data = df[df[varColumn].notna()]
+
+        # filtramos los valores segun percentiles
+        low = data[varColumn].quantile(low_percentile)
+        high = data[varColumn].quantile(high_percentile)
+        if filter:
+            data = data[(data[varColumn] >= high) & (data[varColumn] <= low)]
+
+
+        # medidas estadisticas
+        media = data[varColumn].mean()
+        mediana = data[varColumn].median()
+        mediasup = data[data[varColumn] > mediana][varColumn].mean()
+        mediainf = data[data[varColumn] < mediana][varColumn].mean()
+
+
+        # calcular los limites ajustados por c
+        xinf = media - mediainf
+        xsup = mediasup - media
+        x_sup = media + c*xsup
+        x_inf = media - c*xinf
+
+        # marcamos los outliers
+        df[outputColumn] = 0
+        df.loc[(df[varColumn] < x_inf) | (df[varColumn] > x_sup), outputColumn] = 1
+        return df
+    
+
+
+    def tukey(df: pd.DataFrame, varColumn: str, outputColumn: str, c: float = 2.5) -> pd.DataFrame:
+        # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
+        data = df[df[varColumn].notna()]
+
+        # implementacion iqr
+        q1 = data[varColumn].quantile(0.25)
+        q3 = data[varColumn].quantile(0.75)
+        IQR = q3 - q1
+
+
+        # calcular los limites ajustados por c
+        x_inf = q1 - c*IQR
+        x_sup = q3 + c*IQR
+
+        # marcamos los outliers
+        df[outputColumn] = 0
+        df.loc[(df[varColumn] < x_inf) | (df[varColumn] > x_sup), outputColumn] = 1
+        return df
+
+    
+
+    def redondear(self, monto : float) -> int:
+        # factores de ajuste
+        intervalos = [
+            (0, 10, 10**0),
+            (10, 100, 10**1),
+            (100, 1000, 10**1),
+            (1000, 10000, 10**2),
+            (10000, 100000, 10**2),
+            (100000, 1000000, 10**2),
+            (1000000, 10000000, 10**3),
+            (10000000, 100000000, 10**3),
+            (100000000, float('inf'), 10**4)
+        ]
+
+        # determinar el factor de ajuste dado el intervalo del monto
+        for linf, lsup, f in intervalos:
+            if linf <= monto < lsup:
+                # aplicamos la formula de redondeo
+                monto_redondeado = np.floor(monto / f)*f
+                return monto_redondeado
+
+        return monto
 
 
 
