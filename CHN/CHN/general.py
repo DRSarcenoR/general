@@ -403,7 +403,42 @@ class Analysis:
     def __init__(self) -> None:
         pass
 
-    def elbow_test(X_scaled: np.ndarray, cluster_range: range = range(1,11)) -> None: 
+    def read_lots_excels(self, path : str) -> list[pd.DataFrame]:
+        # dataframes
+        dfs = []
+
+        # lectura
+        try: 
+            # verificar si la carpeta existe
+            if not os.path.isdir(path):
+                print(f"La carpeta '{path}' no existe.")
+                return []
+            
+            # listamos todos los archivos
+            archivos = os.listdir(path)
+
+            # filtrar todos los archivos de excel
+            archivos_excel = [archivo for archivo in archivos if archivo.endswith(('.xls', '.xlsx'))]
+
+            if not archivos_excel:
+                print("No se encontrar excel en la carpeta.")
+                return []
+            
+            # leer cada archivo de excel y agregarlo a la lista
+            for archivo in archivos_excel:
+                ruta_archivo = os.path.join(path, archivo)
+                print(f"Leyendo el archivo: {ruta_archivo}")
+                try: 
+                    df = pd.read_excel(ruta_archivo)
+                    dfs.append(df)
+                except Exception as e:
+                    print(f"Error al leer el archivo '{ruta_archivo}': {e}")
+        except Exception as e:
+            print(f"Error procesando la carpeta: {e}")
+        return dfs
+
+
+    def elbow_test(self, X_scaled: np.ndarray, cluster_range: range = range(1,11)) -> None: 
         # rango de clusters a probar
         rangek = cluster_range
         inertia_values = []
@@ -425,7 +460,7 @@ class Analysis:
         plt.show()
 
 
-    def scatter_cluster(df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster') -> None: 
+    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster') -> None: 
         # scatter plot
         sns.scatterplot(
             x=df[x_col],
@@ -456,7 +491,7 @@ class Analysis:
         return percentiles_table
     
 
-    def tukey_alternative(df: pd.DataFrame, varColumn: str, outputColumn: str, c: float =2.5, low_percentile: float = 0.05, high_percentile: float = 0.95, filter: bool = True) -> pd.DataFrame:
+    def tukey_alternative(self, df: pd.DataFrame, varColumn: str, outputColumn: str, c: float =2.5, low_percentile: float = 0.05, high_percentile: float = 0.95, filter: bool = True) -> pd.DataFrame:
         # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
         data = df[df[varColumn].notna()]
 
@@ -487,7 +522,7 @@ class Analysis:
     
 
 
-    def tukey(df: pd.DataFrame, varColumn: str, outputColumn: str, c: float = 2.5) -> pd.DataFrame:
+    def tukey(self, df: pd.DataFrame, varColumn: str, outputColumn: str, c: float = 2.5) -> pd.DataFrame:
         # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
         data = df[df[varColumn].notna()]
 
