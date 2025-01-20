@@ -333,6 +333,22 @@ class Other:
             print('Correo enviado exitosamente')
         except Exception as e:
             print(f'Error: {e}')
+    
+    def verificar_carpeta(self, ruta_base : str, extension_carpeta : str) -> None:
+        try:
+            # juntamos la ruta base con la carpeta
+            ruta = os.path.join(ruta_base, extension_carpeta)
+
+            # verificamos si la carpeta existe
+            if not os.path.exists(ruta):
+                # la creamos en caso que no este
+                os.makedirs(ruta)
+
+                print(f'Carpeta {ruta} creada.')
+            return True # todo bien, todo correcto... y yo que me alegro
+        except Exception as e:
+            print(f'Error: {e}')
+            return False # GG
 
 
 

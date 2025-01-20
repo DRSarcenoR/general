@@ -49,6 +49,12 @@ class text_management:
         # Eliminar caracteres especiales o no alfanuméricos
         return re.sub(r'[^A-Za-z0-9 ]+', '', texto)
     
+    def no_imprimibles(self, value : str) -> str:
+        # elimina caracteres no imprimibles
+        if isinstance(value, str):
+            return ''.join(c for c in value if c.isprintable())
+        return value
+    
 
 
 class data_text_management:
