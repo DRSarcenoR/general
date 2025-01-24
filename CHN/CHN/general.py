@@ -454,7 +454,7 @@ class Analysis:
         return dfs
 
 
-    def elbow_test(self, X_scaled: np.ndarray, cluster_range: range = range(1,11)) -> None: 
+    def elbow_test(self, X_scaled: np.ndarray, cluster_range: range = range(1,11), output_name : str | None = None) -> None: 
         # rango de clusters a probar
         rangek = cluster_range
         inertia_values = []
@@ -473,10 +473,12 @@ class Analysis:
         plt.xlabel('Número de Clústeres (k)')
         plt.ylabel('Inercia (Suma de Errores Cuadráticos)')
         plt.grid(True)
+        if output_name:
+            plt.savefig(output_name + '.pdf')
         plt.show()
 
 
-    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster') -> None: 
+    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster', output_name : str | None = None) -> None: 
         # scatter plot
         sns.scatterplot(
             x=df[x_col],
@@ -488,6 +490,8 @@ class Analysis:
         plt.xlabel(x_col)
         plt.ylabel(y_col)
         plt.legend(title='Cluster')
+        if output_name:
+            plt.savefig(output_name + '.pdf')     
         plt.show()
 
 
