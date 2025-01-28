@@ -109,6 +109,14 @@ class Scrapping:
         # url para tipo de cambio
         self.urlTC = 'https://www.banguat.gob.gt/tipo_cambio/'
 
+    def genRequest(self, url : str) -> requests.models.Response:
+        return requests.get(
+                                url, 
+                                proxies={'http': None, 'https': None}, 
+                                timeout=60,
+                                verify=False
+                            )   
+
     def tipoCambioHoy(self) -> float:
         # solicitamos la información a la url
         response = requests.get(self.urlTC, proxies={'https': None, 'http': None})
