@@ -365,8 +365,8 @@ class Decorators:
     def __init__(self) -> None:
         pass
 
-
-    def tiempo_ejecucion(self, func):
+    @staticmethod
+    def tiempo_ejecucion(func):
         def wrapper(*args, **kwargs):
             global tiempo_global
             start = time.time()
@@ -377,8 +377,8 @@ class Decorators:
             return result
         return wrapper
     
-
-    def inicio_y_fin(self, func):
+    @staticmethod
+    def inicio_y_fin(func):
         def wrapper(*args, **kwargs):
             print(f"Inicio de la función: {func.__name__}")
             result = func(*args, **kwargs)
@@ -388,8 +388,8 @@ class Decorators:
         return wrapper
 
     
-
-    def exito(self, show : bool = True) -> None:
+    @staticmethod
+    def exito(show : bool = True) -> None:
         """
         Muestra un mensaje ASCII en la consola indicando el éxito de una operación.
 

@@ -55,6 +55,9 @@ class text_management:
             return ''.join(c for c in value if c.isprintable())
         return value
     
+    def remove_unsupported_characters(self, text : str):
+        return re.sub(r'[^\x00-\x7F]+', '', text)
+    
 
 
 class data_text_management:
