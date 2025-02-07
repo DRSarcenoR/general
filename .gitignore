@@ -35,3 +35,4 @@ dist/
 build/
 CHN.egg-info/
 MANIFEST.in
+.Rproj.user
