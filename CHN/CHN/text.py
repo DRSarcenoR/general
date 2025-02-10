@@ -27,9 +27,6 @@ import unicodedata
 
 # archivos del sistema
 import os
-
-# APIs o PseudoAPIs
-import win32com.client as win32
 # ------------------------------>
 
 
