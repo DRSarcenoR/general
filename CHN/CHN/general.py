@@ -41,6 +41,7 @@ import time
 import warnings
 import locale
 import time
+from dotenv import load_dotenv
 
 # archivos del sistema
 import os
@@ -49,7 +50,7 @@ import os
 #import win32com.client as win32
 # ------------------------------>
 
-
+load_dotenv()
 class Connections:
     def __init__(self):
         self.__credentials = {
@@ -68,6 +69,7 @@ class Connections:
                                     }
                                 }
                             }
+        
 
     def connection(self, query : str, db : int) -> pd.DataFrame:
         '''Selecciona la base de datos 1: Banco, 2: Seguros'''

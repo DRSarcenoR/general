@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CHN',
-    version='1.6.3',
+    version='1.6.8',
     description='Colección de métodos y funciones útiles para análisis y ciencia de datos, web-scrapping y tareas comunes.',
     author='Diego Sarceño',
     author_email='dsarceno68@gmail.com',
@@ -23,11 +23,12 @@ setup(
         'openpyxl',
         'ipykernel',
         'polars',
-        'beautifulsoup4'
+        'beautifulsoup4',
+        'python-dotenv'
     ],
     include_package_data=True,
     package_data={
-        'CHN': ['CHN/credenciales.json'],
+        'CHN': ['CHN/credenciales.json', 'CHN/.env'],
     },
     classifiers=[
         'Programming Language :: Python :: 3',
