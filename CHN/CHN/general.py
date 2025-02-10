@@ -46,7 +46,7 @@ import time
 import os
 
 # APIs o PseudoAPIs
-import win32com.client as win32
+#import win32com.client as win32
 # ------------------------------>
 
 
@@ -299,6 +299,7 @@ class Other:
                 else:
                     archivo.write(f"{espacios}├── {item}\n")
     
+    '''
     def enviar_correo(destinatario : str, asunto : str, cuerpo : str, ruta_adjunto : str | None = None) -> None:
         """
         Envía un correo electrónico a través de Microsoft Outlook.
@@ -342,6 +343,7 @@ class Other:
             print('Correo enviado exitosamente')
         except Exception as e:
             print(f'Error: {e}')
+    '''
     
     def verificar_carpeta(self, ruta_base : str, extension_carpeta : str) -> None:
         try:
