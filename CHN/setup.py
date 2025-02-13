@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CHN',
-    version='1.6.8',
+    version='1.7.1',
     description='Colección de métodos y funciones útiles para análisis y ciencia de datos, web-scrapping y tareas comunes.',
     author='Diego Sarceño',
     author_email='dsarceno68@gmail.com',

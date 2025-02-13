@@ -66,6 +66,12 @@ class Connections:
                                         "server": "172.31.100.67",
                                         "port": "1433",
                                         "database": "DW"
+                                    },
+                                    "Desarrollo": {
+                                        "driver": "{ODBC Driver 17 for SQL Server}",
+                                        "server": "172.31.125.11",
+                                        "port": "1433",
+                                        "database": "kpi_dataw"
                                     }
                                 }
                             }
@@ -77,7 +83,8 @@ class Connections:
 
         # seleccionamos la base
         select_db = {1: 'Banco',
-        2: 'Seguros'}
+        2: 'Seguros',
+        3: 'Desarrollo'}
         selected_db = select_db.get(db)
 
         # abrimos el json con las credenciales e informacion
