@@ -253,6 +253,25 @@ class Other:
                 
         pass
 
+    def notebooks_config(self, precision : int = 5, max_rows : int = 30) -> None:
+        # quitamos las warnings
+        warnings.filterwarnings('ignore')
+
+        # display options
+        pd.options.display.max_columns=50
+        pd.options.display.max_rows=max_rows
+        pd.options.display.expand_frame_repr=False
+        pd.options.display.colheader_justify='center'
+        pd.set_option('display.float_format', lambda x: f'{x:.6f}')
+
+        # np options
+        np.set_printoptions(
+            precision=precision,
+            suppress=True,
+            linewidth=100,
+            threshold=1000
+        )
+
     def record(self, script_name : str, exec_time : str) -> None:
         """
         Registra el nombre del script, la fecha y hora, y el tiempo de ejecución en el archivo 'record.txt'.
