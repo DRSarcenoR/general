@@ -35,9 +35,6 @@ import seaborn as sns
 # ML
 from sklearn.cluster import KMeans
 
-# text
-from text import text_management
-
 # apoyo
 from datetime import datetime, timedelta
 import time
@@ -392,10 +389,18 @@ class Other:
             print(f'Error: {e}')
             return False # GG
     
-    def infoClientes(clientes : str | tuple, output : str | None = None) -> tuple | None:
+
+    def no_imprimibles(self, value : str) -> str:
+        # elimina caracteres no imprimibles
+        if isinstance(value, str):
+            return ''.join(c for c in value if c.isprintable())
+        return value
+    
+
+    
+    def infoClientes(self, clientes : str | tuple, output : str | None = None) -> tuple | None:
         # creamos el objeto
         conn = Connections()
-        tm = text_management()
         
         # query en forma lambda
         query = lambda clientes: f'''with info_clientes as (
@@ -542,10 +547,10 @@ class Other:
         beneficiarios = conn.connection(query(clientes) + beneficiariosQ, 1)
 
         # limpiamos los caracteres no imprimibles
-        infoCliente = tm.no_imprimibles(infoCliente)
-        productos = tm.no_imprimibles(productos)
-        accionistas = tm.no_imprimibles(accionistas)
-        beneficiarios = tm.no_imprimibles(beneficiarios)
+        infoCliente = self.no_imprimibles(infoCliente)
+        productos = self.no_imprimibles(productos)
+        accionistas = self.no_imprimibles(accionistas)
+        beneficiarios = self.no_imprimibles(beneficiarios)
 
         # en caso que se desee se exporta en un archivo excel
         if output:
