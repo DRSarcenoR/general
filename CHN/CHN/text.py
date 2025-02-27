@@ -111,3 +111,11 @@ class data_text_management:
               .pipe(self.caracteres_especiales, col_out, col_out)
               .pipe(self.espacios_extra, col_out, col_out))
         return result
+    
+    
+    def replace_illegal_characters(self, df: pd.DataFrame, replacement=' ') -> pd.DataFrame:
+        # Expresión regular para caracteres ilegales
+        illegal_chars_pattern = re.compile(r'[\u0000-\u001f]')
+
+        # Reemplazar en todo el DataFrame
+        return df.applymap(lambda x: illegal_chars_pattern.sub(replacement, str(x)) if isinstance(x, str) else x)

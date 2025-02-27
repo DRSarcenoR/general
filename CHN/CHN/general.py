@@ -402,8 +402,16 @@ class Other:
         # creamos el objeto
         conn = Connections()
         
+        # comprobamos que sea alguno de los dos tipos de dato que nos interesa
+        if isinstance(clientes, str):
+            clientes = f" = '{clientes}' "
+        elif isinstance(clientes, tuple):
+            clientes = f' in {clientes}'
+        else:
+            return None
+
         # query en forma lambda
-        query = lambda clientes: f'''with info_clientes as (
+        query = lambda cli: f'''with info_clientes as (
         select
             cli.cliente_Skey,
             cli.cod_cliente,
@@ -431,7 +439,7 @@ class Other:
             cli.cod_representante_legal,
             cli.nombre_representante_legal
         from dim_cliente cli
-        where cli.cod_cliente in {clientes}
+        where cli.cod_cliente {cli}
     ),
     prods_creds as (
         select 
@@ -528,13 +536,9 @@ class Other:
             ben.porcentaje_beneficiario
         from fac_beneficiario ben
         join prods_cuentas pc on pc.cod_prod = ben.cod_cuenta
-    )'''
+    )
+    '''
         
-        # comprobamos que sea alguno de los dos tipos de dato que nos interesa
-        if isinstance(clientes, str):
-            clientes = tuple(clientes)
-        elif not isinstance(clientes, tuple):
-            return None
         
         # solicitamos la informacion
         infoClienteQ = 'select * from info_clientes'
@@ -559,7 +563,7 @@ class Other:
                 productos.to_excel(op, sheet_name='PRODUCTOS', index=False)
                 accionistas.to_excel(op, sheet_name='ACCIONISTAS', index=False)
                 beneficiarios.to_excel(op, sheet_name='BENEFICIARIOS', index=False)
-        
+
         return infoCliente, productos, accionistas, beneficiarios
 
 
