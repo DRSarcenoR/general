@@ -433,12 +433,25 @@ class Other:
             cli.sector_economico_ive,
             cli.institucion,
             cli.puesto,
+            cli.firmante,
             cli.codigo_empleado,
             cli.direcciones_np,
             cli.nombre_notario,
             cli.cod_representante_legal,
-            cli.nombre_representante_legal
+            cli.nombre_representante_legal,
+            isnull(p.num_productos, 0) as num_productos
         from dim_cliente cli
+        left join (
+            select cliente_Skey, count(*) as num_productos
+            from (
+                    select col.cliente_Skey from fac_colocacion col
+                    union all
+                    select cap.cliente_Skey from fac_captacion cap
+                    union all
+                    select trj.cliente_Skey from fac_tarjeta trj
+                ) as productos_por_cliente
+                group by cliente_Skey
+        ) p on p.cliente_Skey = cli.cliente_Skey
         where cli.cod_cliente {cli}
     ),
     prods_creds as (
