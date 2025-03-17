@@ -55,6 +55,21 @@ class text_management:
     def remove_unsupported_characters(self, text : str):
         return re.sub(r'[^\x00-\x7F]+', '', text)
     
+    def clean_text(self, texto : str) -> str:
+        # minusculas
+        texto = texto.lower()
+
+        # eliminar tildes y caracteres espciales
+        texto = unicodedata.normalize('NFKD', texto).encode('ascii', 'ignore').decode('utf-8', 'ignore')
+
+        # eliminar caracteres no alfabeticos
+        texto = re.sub(r'[^a-z0-9\s]', '', texto)
+
+        # eliminar espacios extra
+        texto = re.sub(r'\s+', ' ', texto).strip()
+
+        return texto
+    
 
 
 class data_text_management:
