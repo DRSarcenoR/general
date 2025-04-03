@@ -707,7 +707,7 @@ class Analysis:
         plt.show()
 
 
-    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster', output_name : str | None = None) -> None: 
+    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster', output_name : str | None = None, title : str = 'Clustering', line : bool = False) -> None: 
         # scatter plot
         sns.scatterplot(
             x=df[x_col],
@@ -715,13 +715,22 @@ class Analysis:
             hue=df[cluster_col],
             palette='tab10'
         )
-        plt.title('Clustering de empleados basado en diferencias')
+
+        if line:
+            # graficamos la rega y=x
+            x_min, x_max = df[x_col].min(), df[x_col].max()
+            y_min, y_max = df[x_col].min(), df[x_col].max()
+            min_val, max_val = min(x_min, y_min), max(x_max, y_max)
+            plt.plot([min_val, max_val], [min_val, max_val], linestyle='--', color='gray', label='y = x')
+
+        plt.title(title)
         plt.xlabel(x_col)
         plt.ylabel(y_col)
         plt.legend(title='Cluster')
         if output_name:
             plt.savefig(output_name + '.pdf')     
         plt.show()
+    
 
 
     def percentiles(self, df, columna, pasos=1):
