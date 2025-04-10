@@ -823,6 +823,36 @@ class Analysis:
                 return monto_redondeado
 
         return monto
+    
+    def cumsum_with_threshold(self, series : pd.Series, threshold: float, skipna=True) -> pd.Series:
+        """
+        Realiza una suma acumulativa por partes basada en un umbral definido por el usuario.
+
+        Parameters:
+        series (pd.Series): Serie de pandas sobre la que se calcula la suma acumulativa.
+        threshold (float): Valor umbral para dividir las sumas acumulativas.
+        skipna (bool): Si se deben ignorar valores NaN en los cálculos.
+
+        Returns:
+        pd.Series: Una Serie con la suma acumulativa por partes.
+        """
+        # Convertimos a numpy array para operaciones eficientes
+        values = series.values
+        result = np.zeros_like(values, dtype=np.float64)
+        
+        # Inicializamos variables
+        acc = 0
+        for i, val in enumerate(values):
+            acc += val
+            if acc > threshold:
+                # Si superamos el umbral, marcamos el valor acumulado
+                result[i] = acc
+                # Calculamos la diferencia para la siguiente celda
+                acc -= threshold
+            else:
+                result[i] = acc
+        
+        return pd.Series(result, index=series.index, name=series.name)
 
 
 
