@@ -1,6 +1,6 @@
 Package: RCHN
 Title: Utilidades y Conexiones en R
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person("Diego", "Sarceño", email = "dsarceno68@gmail.com", role = c("aut", "cre"))
 Description: 

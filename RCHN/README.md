@@ -10,7 +10,7 @@ El paquete se instaló utilizando los siguientes pasos y comandos en la consola 
 ```
 
 2. Ya con la documentación generada se puede crear el instalador del paquete: `> devtools::build()`. Esto debe de generar un archivo _.tar.gz_.
-3. Con este archivo se puede instalar usando la siguiente línea de comandos en la consola de R:
+3. Con este archivo se puede instalar usando la siguiente línea de comandos en la consola de R: (en caso que el paquete esté en uso es necesario reiniciar **R**: `Ctrl + Shift + F10`)
 
 ```R
 > install.packages("ruta/al/instalador/miPaquete.tar.gz", repos=NULL, type="source")
