@@ -853,6 +853,33 @@ class Analysis:
                 result[i] = acc
         
         return pd.Series(result, index=series.index, name=series.name)
+    
+
+    def describe_categorical(data: pd.DataFrame, column: str) -> None:
+        # Obtener conteo de valores únicos y frecuencia
+        value_counts = data[column].value_counts()
+        
+        # Crear tabla con información relevante
+        summary = pd.DataFrame({
+            'Valor': value_counts.index,
+            'Frecuencia': value_counts.values,
+            'Porcentaje': value_counts.values / len(data) * 100
+        })
+        
+        # Mostrar tabla
+        print(f"Información para la variable '{column}':")
+        print(summary)
+        print()
+        
+        # Crear histograma de frecuencias
+        plt.figure(figsize=(8, 6))
+        plt.bar(summary['Valor'], summary['Frecuencia'], color='skyblue')
+        plt.xlabel('Valor')
+        plt.ylabel('Frecuencia')
+        plt.title(f'Histograma de frecuencias para la variable {column}')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
 
 
 
