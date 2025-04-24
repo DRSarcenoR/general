@@ -52,7 +52,19 @@ import os
 
 load_dotenv()
 class Connections:
+    """
+    Clase para gestionar conexiones a distintas bases de datos mediante ODBC.
+
+    Esta clase contiene credenciales internas y permite ejecutar consultas SQL
+    sobre diferentes entornos como Banco, Seguros y Desarrollo.
+    """
+
+
     def __init__(self):
+        """
+        Inicializa la clase Connections con las credenciales predefinidas
+        para múltiples entornos de base de datos.
+        """
         self.__credentials = {
                                 "DW": {
                                     "Banco": {
@@ -78,7 +90,20 @@ class Connections:
         
 
     def connection(self, query : str, db : int) -> pd.DataFrame:
-        '''Selecciona la base de datos 1: Banco, 2: Seguros'''
+        """
+        Ejecuta una consulta SQL sobre la base de datos seleccionada y devuelve los resultados.
+
+        Parameters:
+            query (str): Cadena con la consulta SQL a ejecutar.
+            db (int): Código numérico de la base de datos a utilizar:
+                - 1: Banco
+                - 2: Seguros
+                - 3: Desarrollo
+
+        Returns:
+            pd.DataFrame: Un DataFrame con los resultados de la consulta SQL.
+                          Si ocurre un error durante la conexión o ejecución, retorna None.
+        """
         warnings.filterwarnings('ignore')
 
         # seleccionamos la base
@@ -114,11 +139,32 @@ class Connections:
 
 
 class Scrapping:
+    """
+    Clase para realizar scrapping del tipo de cambio desde el sitio del Banco de Guatemala.
+    Contiene métodos para obtener el tipo de cambio del día actual o de una fecha específica.
+    """
+
     def __init__(self) -> None:
+        """
+        Inicializa la clase Scrapping con la URL de consulta del tipo de cambio.
+        """
         # url para tipo de cambio
         self.urlTC = 'https://www.banguat.gob.gt/tipo_cambio/'
 
+
+
     def genRequest(self, url : str, headers : dict | None = None, timeout : int = 60) -> requests.models.Response:
+        """
+        Realiza una solicitud HTTP GET a una URL específica con parámetros opcionales.
+
+        Parameters:
+            url (str): URL de destino.
+            headers (dict, optional): Encabezados HTTP personalizados.
+            timeout (int): Tiempo máximo de espera en segundos. Por defecto es 60.
+
+        Returns:
+            requests.Response: Objeto de respuesta de la petición.
+        """
         return requests.get(
                                 url, 
                                 headers=headers,
@@ -126,8 +172,16 @@ class Scrapping:
                                 timeout=timeout,
                                 verify=False
                             )   
+    
+
 
     def tipoCambioHoy(self) -> float:
+        """
+        Obtiene el tipo de cambio actual desde la página del Banco de Guatemala.
+
+        Returns:
+            float: Valor del tipo de cambio actual. Si ocurre un error, se imprime el mensaje y no retorna nada.
+        """
         # solicitamos la información a la url
         response = requests.get(self.urlTC, proxies={'https': None, 'http': None})
 
@@ -164,6 +218,15 @@ class Scrapping:
     
 
     def tipoCambio(self, fecha : str) -> float:
+        """
+        Obtiene el tipo de cambio para una fecha específica mediante automatización del navegador.
+
+        Parameters:
+            fecha (str): Fecha en formato 'dd/mm/yyyy' para la cual se desea obtener el tipo de cambio.
+
+        Returns:
+            float: Valor del tipo de cambio correspondiente a la fecha dada.
+        """
         # url y path al driver
         PATH_TO_DRIVER = 'C:/chromedriver-win32/chromedriver-win32/chromedriver.exe'
         url = 'https://www.banguat.gob.gt/tipo_cambio/'
@@ -254,6 +317,13 @@ class Other:
         pass
 
     def notebooks_config(self, precision : int = 5, max_rows : int = 30) -> None:
+        """
+        Configura las opciones de visualización de pandas y numpy para mejorar la legibilidad en notebooks.
+
+        Parameters:
+            precision (int): Precisión de números decimales para numpy. Por defecto 5.
+            max_rows (int): Máximo de filas que pandas muestra por defecto. Por defecto 30.
+        """
         # quitamos las warnings
         warnings.filterwarnings('ignore')
 
@@ -298,7 +368,14 @@ class Other:
 
 
     def listar_directorios(self, base_path, archivo_salida, nivel=0):
-        """Lista los directorios y archivos en formato de árbol y los guarda en un archivo."""
+        """
+        Lista la estructura de directorios y archivos de una ruta base y la guarda como árbol en un archivo de texto.
+
+        Parameters:
+            base_path (str): Ruta base del sistema de archivos a listar.
+            archivo_salida (str): Nombre del archivo de salida.
+            nivel (int): Nivel de indentación inicial para el árbol (usado internamente).
+        """
         # Abre el archivo para escribir con codificación UTF-8
         with open(archivo_salida, 'w', encoding='utf-8') as archivo:
             archivo.write("```markdown\n")
@@ -307,7 +384,14 @@ class Other:
             archivo.write("```\n")
 
     def _listar_directorios_recursivo(self, base_path, archivo, nivel):
-        """Función recursiva para listar directorios y archivos."""
+        """
+        Método auxiliar recursivo para listar los directorios y escribirlos con indentación jerárquica.
+
+        Parameters:
+            base_path (str): Ruta actual a listar.
+            archivo (TextIO): Archivo de escritura abierto.
+            nivel (int): Nivel actual de profundidad en el árbol.
+        """
         espacios = '    ' * nivel  # Espacio para el nivel
         items = os.listdir(base_path)  # Lista de elementos en el directorio
         items.sort()  # Ordena alfabéticamente
@@ -374,6 +458,22 @@ class Other:
     '''
     
     def verificar_carpeta(self, ruta_base : str, extension_carpeta : str) -> None:
+        """
+        Verifica si una carpeta existe en la ruta especificada. Si no existe, la crea.
+
+        :param ruta_base: Ruta base donde se quiere verificar/crear la carpeta.
+        :type ruta_base: str
+        :param extension_carpeta: Nombre o extensión de la carpeta a verificar/crear.
+        :type extension_carpeta: str
+        :return: True si la carpeta ya existía o fue creada exitosamente, False en caso de error.
+        :rtype: bool
+        :example:
+
+        .. code-block:: python
+
+            other = Other()
+            other.verificar_carpeta("C:/Users/Admin", "nueva_carpeta")
+        """
         try:
             # juntamos la ruta base con la carpeta
             ruta = os.path.join(ruta_base, extension_carpeta)
@@ -391,6 +491,19 @@ class Other:
     
 
     def no_imprimibles(self, value : str) -> str:
+        """
+        Elimina caracteres no imprimibles de una cadena de texto.
+
+        :param value: Cadena de texto a limpiar.
+        :type value: str
+        :return: Cadena sin caracteres no imprimibles.
+        :rtype: str
+        :example:
+
+        .. code-block:: python
+
+            texto_limpio = other.no_imprimibles("Hola\x00Mundo")
+        """
         # elimina caracteres no imprimibles
         if isinstance(value, str):
             return ''.join(c for c in value if c.isprintable())
@@ -399,6 +512,23 @@ class Other:
 
     
     def infoClientes(self, clientes : str | tuple, output : str | None = None) -> tuple | None:
+        """
+        Recupera información detallada de uno o varios clientes, incluyendo sus productos,
+        accionistas y beneficiarios. Puede exportar los resultados a un archivo Excel.
+
+        :param clientes: Código(s) de cliente(s). Puede ser un string o una tupla de strings.
+        :type clientes: str | tuple
+        :param output: Ruta del archivo Excel para exportar los resultados. Opcional.
+        :type output: str | None
+        :return: Tupla con los DataFrames (infoCliente, productos, accionistas, beneficiarios).
+                Retorna None si el parámetro `clientes` no es válido.
+        :rtype: tuple | None
+        :example:
+
+        .. code-block:: python
+
+            clientes_data = other.infoClientes(("C123", "C456"), output="clientes.xlsx")
+        """
         # creamos el objeto
         conn = Connections()
         
@@ -583,10 +713,19 @@ class Other:
 
 class Decorators:
     def __init__(self) -> None:
+        """
+        Clase que contiene decoradores y utilidades para funciones.
+        """
         pass
 
     @staticmethod
     def tiempo_ejecucion(func):
+        """
+        Decorador que mide el tiempo de ejecución de una función y lo imprime.
+
+        :param func: Función a decorar.
+        :return: Función decorada.
+        """
         def wrapper(*args, **kwargs):
             global tiempo_global
             start = time.time()
@@ -599,6 +738,9 @@ class Decorators:
     
     @staticmethod
     def inicio_y_fin(func):
+        """
+        Decorador que imprime el inicio y el fin de una función.
+        """
         def wrapper(*args, **kwargs):
             print(f"Inicio de la función: {func.__name__}")
             result = func(*args, **kwargs)
@@ -616,12 +758,6 @@ class Decorators:
         :param show: Si es True, imprime el mensaje ASCII. Por defecto es True.
         :type show: bool
         :returns: None
-        :example:
-
-        .. code-block:: python
-
-            notifier = Other()
-            notifier.exito()
         """
 
         if show:
@@ -645,10 +781,20 @@ class Decorators:
 
 
 class Analysis:
+    """
+    Clase que agrupa funciones para análisis de datos como lectura de múltiples archivos Excel,
+    pruebas estadísticas y visualizaciones.
+    """
     def __init__(self) -> None:
         pass
 
     def read_lots_excels(self, path : str) -> list[pd.DataFrame]:
+        """
+        Lee múltiples archivos Excel de una carpeta dada.
+
+        :param path: Ruta a la carpeta que contiene archivos Excel.
+        :return: Lista de DataFrames leídos desde los archivos.
+        """
         # dataframes
         dfs = []
 
@@ -684,6 +830,13 @@ class Analysis:
 
 
     def elbow_test(self, X_scaled: np.ndarray, cluster_range: range = range(1,11), output_name : str | None = None) -> None: 
+        """
+        Realiza el método del codo para determinar el número óptimo de clústeres.
+
+        :param X_scaled: Matriz de datos escalados.
+        :param cluster_range: Rango de valores para k en KMeans.
+        :param output_name: Nombre del archivo PDF para guardar el gráfico.
+        """
         # rango de clusters a probar
         rangek = cluster_range
         inertia_values = []
@@ -707,7 +860,18 @@ class Analysis:
         plt.show()
 
 
-    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster', output_name : str | None = None, title : str = 'Clustering', line : bool = False) -> None: 
+    def scatter_cluster(self, df: pd.DataFrame, x_col: str, y_col: str, cluster_col : str = 'Cluster', output_name : str | None = None, title : str = 'Clustering', line : bool = False) -> None:
+        """
+        Genera un gráfico de dispersión con los clusters asignados.
+
+        :param df: DataFrame con los datos.
+        :param x_col: Nombre de la columna para el eje x.
+        :param y_col: Nombre de la columna para el eje y.
+        :param cluster_col: Columna con los clusters asignados.
+        :param output_name: Nombre del archivo PDF para guardar el gráfico.
+        :param title: Título del gráfico.
+        :param line: Si se desea graficar la línea y = x.
+        """ 
         # scatter plot
         sns.scatterplot(
             x=df[x_col],
@@ -733,7 +897,15 @@ class Analysis:
     
 
 
-    def percentiles(self, df, columna, pasos=1):
+    def percentiles(self, df: pd.DataFrame, columna: str, pasos: int = 1) -> pd.DataFrame:
+        """
+        Calcula los percentiles de una columna.
+
+        :param df: DataFrame de entrada.
+        :param columna: Columna sobre la cual calcular los percentiles.
+        :param pasos: Intervalo entre percentiles a calcular.
+        :return: DataFrame con percentiles y valores.
+        """
         # Generar una lista de percentiles (de 0% a 100%) con el paso especificado
         percentiles = [i / 100 for i in range(0, 101, pasos)]  # Por defecto, pasos=1 (0%, 1%, 2%, ..., 100%)
         
@@ -750,6 +922,26 @@ class Analysis:
     
 
     def tukey_alternative(self, df: pd.DataFrame, varColumn: str, outputColumn: str, c: float =2.5, low_percentile: float = 0.05, high_percentile: float = 0.95, filter: bool = True) -> pd.DataFrame:
+        """
+        Alternativa al método de Tukey para detección de outliers usando percentiles y diferencias relativas a la media.
+
+        :param df: DataFrame con los datos.
+        :type df: pd.DataFrame
+        :param varColumn: Columna a analizar.
+        :type varColumn: str
+        :param outputColumn: Columna donde marcará los outliers.
+        :type outputColumn: str
+        :param c: Factor de multiplicación para los límites.
+        :type c: float
+        :param low_percentile: Percentil inferior para filtrar datos.
+        :type low_percentile: float
+        :param high_percentile: Percentil superior para filtrar datos.
+        :type high_percentile: float
+        :param filter: Si se desea filtrar por percentiles antes del análisis.
+        :type filter: bool
+        :return: DataFrame con columna de outliers marcada.
+        :rtype: pd.DataFrame
+        """
         # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
         data = df[df[varColumn].notna()]
 
@@ -781,6 +973,20 @@ class Analysis:
 
 
     def tukey(self, df: pd.DataFrame, varColumn: str, outputColumn: str, c: float = 2.5) -> pd.DataFrame:
+        """
+        Aplica el método clásico de Tukey (basado en IQR) para detectar outliers.
+
+        :param df: DataFrame con los datos.
+        :type df: pd.DataFrame
+        :param varColumn: Columna a evaluar.
+        :type varColumn: str
+        :param outputColumn: Nombre de la columna a crear para marcar los outliers.
+        :type outputColumn: str
+        :param c: Coeficiente para determinar los límites.
+        :type c: float
+        :return: DataFrame con columna de outliers marcada.
+        :rtype: pd.DataFrame
+        """
         # quitamos valores faltantes (no se imputan, en caso qeu se requiera, que se haga por fuera)
         data = df[df[varColumn].notna()]
 
@@ -802,6 +1008,14 @@ class Analysis:
     
 
     def redondear(self, monto : float) -> int:
+        """
+        Redondea un monto hacia abajo al múltiplo más cercano según un factor definido por intervalos.
+
+        :param monto: Monto a redondear.
+        :type monto: float
+        :return: Monto redondeado.
+        :rtype: int
+        """
         # factores de ajuste
         intervalos = [
             (0, 10, 10**0),
@@ -826,15 +1040,16 @@ class Analysis:
     
     def cumsum_with_threshold(self, series : pd.Series, threshold: float, skipna=True) -> pd.Series:
         """
-        Realiza una suma acumulativa por partes basada en un umbral definido por el usuario.
+        Realiza una suma acumulativa por bloques, reiniciando cuando se alcanza un umbral.
 
-        Parameters:
-        series (pd.Series): Serie de pandas sobre la que se calcula la suma acumulativa.
-        threshold (float): Valor umbral para dividir las sumas acumulativas.
-        skipna (bool): Si se deben ignorar valores NaN en los cálculos.
-
-        Returns:
-        pd.Series: Una Serie con la suma acumulativa por partes.
+        :param series: Serie sobre la que se aplicará el cálculo.
+        :type series: pd.Series
+        :param threshold: Umbral máximo antes de reiniciar acumulación.
+        :type threshold: float
+        :param skipna: Si se deben omitir valores NaN.
+        :type skipna: bool
+        :return: Serie con suma acumulativa parcial.
+        :rtype: pd.Series
         """
         # Convertimos a numpy array para operaciones eficientes
         values = series.values
@@ -856,6 +1071,15 @@ class Analysis:
     
 
     def describe_categorical(data: pd.DataFrame, column: str) -> None:
+        """
+        Muestra un resumen de frecuencias para una columna categórica.
+
+        :param data: DataFrame con los datos.
+        :type data: pd.DataFrame
+        :param column: Nombre de la columna categórica.
+        :type column: str
+        :return: None
+        """
         # Obtener conteo de valores únicos y frecuencia
         value_counts = data[column].value_counts()
         
