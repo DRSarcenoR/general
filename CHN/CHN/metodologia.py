@@ -254,6 +254,7 @@ class Metodologia:
 
 
 
+
     # ---------------------------- STEPS --------------------------------------------- >
     def first_step(self, dataframe, col_analisis = 'AMOUNT',col_id_cliente = 'cliente_Skey'): # Mostrar monto y clientes totales
         """
@@ -574,3 +575,39 @@ class Metodologia:
         # Creamos un DataFrame con la información que queremos agregar
         new_row = pd.DataFrame([data], columns=self.resultados.columns)
         return [new_row,df_excel]
+    
+
+    ################################################
+    ####################### POST ###################
+    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t=12, col_analisis='monto', col_date='fecha', col_id_cliente='cliente', title='Alertas generadas vs Umbral'):
+        resultados = []
+
+        for umb in umbrales:
+            df_resultado, _ = self.ninth_step(df, umb=umb, col_analisis=col_analisis, col_date=col_date, col_id_cliente=col_id_cliente)
+            # Asegúrate de que no esté vacío
+            if not df_resultado.empty:
+                parametro = df_resultado.loc[0, 'Parámetro']
+                alertas = df_resultado.loc[0, 'Alertas generadas']
+                resultados.append({'Umbral': parametro, 'Alertas generadas': alertas})
+
+        # Crear DataFrame de resultados
+        df_alertas = pd.DataFrame(resultados)
+        if isinstance(t, int):
+            df_alertas['mensuales'] = df_alertas['Alertas generadas'] / t
+        else: 
+            df_alertas['mensuales'] = df_alertas['Alertas generadas'] / 12
+
+        # Graficar
+        plt.figure(figsize=(10, 6))
+        plt.plot(df_alertas['Umbral'], df_alertas['mensuales'], marker='o')
+        plt.title(title)
+        plt.xlabel('Umbral')
+        plt.ylabel('Alertas Generadas x Mes')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+        return df_alertas
+     
+
+
