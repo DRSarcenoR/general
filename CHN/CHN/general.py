@@ -561,6 +561,8 @@ class Other:
             cli.sectorEconomico,
             cli.actividad_economica,
             cli.sector_economico_ive,
+            cli.nacionalidad,
+            cli.lugar_nacimiento_extranjero,
             cli.institucion,
             cli.puesto,
             cli.firmante,
