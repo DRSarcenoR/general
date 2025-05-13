@@ -24,6 +24,7 @@ import pyodbc
 
 # graficas
 import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
 
 # ML
@@ -55,7 +56,7 @@ class Metodologia:
         self.resultados = pd.DataFrame(columns=columns)
 
     
-    def estats_base(self, dataframe, col_analisis = 'AMOUNT', col_cliente = 'cliente_Skey'):
+    def estats_base(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_cliente : str = 'cliente_Skey') -> tuple[float, int]:
         """
         Calculates the total sum of the specified amounts and the count of clients to analyze.
 
@@ -76,14 +77,14 @@ class Metodologia:
 
         return mt, ct
 
-    def validar_formato_fecha(self, fecha):
+    def validar_formato_fecha(self, fecha : str) -> bool:
         # Expresión regular para el formato MM-DD (mes y día válidos)
         if re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$', fecha):
             return True
         return False
 
 
-    def plot_total_amount_by_transaction_date(self, dataframe, col_analisis = 'AMOUNT',col_date ='TRANSACTION DATE',  horizontal_line_value=None):
+    def plot_total_amount_by_transaction_date(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str ='TRANSACTION DATE',  horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """'
         Creates and returns a bar chart of total amounts by transaction date.
 
@@ -128,7 +129,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_customer_cluster(self, dataframe,col_analisis = 'AMOUNT',col_id_cliente = 'cliente_Skey',horizontal_line_value=None):
+    def plot_total_amount_by_customer_cluster(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey',horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """'
         Creates and returns a scatter plot of total amounts by customer, grouped by cluster or quantile.
 
@@ -154,7 +155,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_transaction_date_cluster(self, dataframe, col_analisis = 'AMOUNT', col_date = 'TRANSACTION FECHA', horizontal_line_value=None,):
+    def plot_total_amount_by_transaction_date_cluster(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION FECHA', horizontal_line_value : bool | None  = None,) -> matplotlib.figure.Figure:
         """
         Creates and returns a scatter plot of total amounts by transaction date, grouped by cluster or quantile.
 
@@ -189,7 +190,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_customer(self, dataframe,col_analisis = 'AMOUNT', col_id_cliente='cliente_Skey',horizontal_line_value=None):
+    def plot_total_amount_by_customer(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str ='cliente_Skey', horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """
         Creates and returns a bar chart of total amounts by customer.
 
@@ -223,7 +224,7 @@ class Metodologia:
 
 
     # Función para creación de tablas de quantiles
-    def quantile_table(self, dataframe, col_analisis = 'AMOUNT'):
+    def quantile_table(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT') -> pd.DataFrame:
         """
         Generates quantile values from the 75th percentile to the 100th percentile in steps of 1%.
 
@@ -256,7 +257,7 @@ class Metodologia:
 
 
     # ---------------------------- STEPS --------------------------------------------- >
-    def first_step(self, dataframe, col_analisis = 'AMOUNT',col_id_cliente = 'cliente_Skey'): # Mostrar monto y clientes totales
+    def first_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey') -> tuple[float, int]: # Mostrar monto y clientes totales
         """
         Calls the 'estats_base' function to calculate the total sum of amounts and the count of unique clients.
 
@@ -273,7 +274,7 @@ class Metodologia:
         mt, ct = self.estats_base(dataframe, col_analisis,col_id_cliente)
         return mt, ct
 
-    def second_step(self, dataframe, col_analisis = 'AMOUNT',col_date = 'TRANSACTION DATE',col_id_cliente = 'cliente_Skey'): # Primeras gráficas: clientes vs montos y fechas vs montos
+    def second_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey') -> tuple[matplotlib.figure.Figure, matplotlib.figure.Figure]: # Primeras gráficas: clientes vs montos y fechas vs montos
         """
         Generates two graphs: one showing the total amounts by customer, and another showing the total amounts by transaction date.
 
@@ -294,7 +295,7 @@ class Metodologia:
         return [graph_am_cust,graph_am_tr_date]
 
 
-    def third_step(self, dataframe, col_analisis = 'AMOUNT'): # Tabla de quantiles
+    def third_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT') -> pd.DataFrame: # Tabla de quantiles
         """
         Generates an HTML table displaying the quantiles of data from the 75th percentile to the 100th percentile. (not HTML anymore, holy shit that is fucking ugly)
 
@@ -310,7 +311,7 @@ class Metodologia:
         return html_table
     
 
-    def forth_step(self, dataframe, S_N_quantile,col_analisis = 'AMOUNT',col_date = 'TRANSACTION DATE',col_id_cliente = 'cliente_Skey', quantile = 0.95): # Selección del model
+    def forth_step(self, dataframe : pd.DataFrame, S_N_quantile : str | None, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey', quantile : int = 0.95) -> tuple[pd.DataFrame, matplotlib.figure.Figure]: # Selección del model
         """
         Generates three graphs:
         1. Total amount by customer, with a horizontal line representing the data cutoff for training.
@@ -378,11 +379,11 @@ class Metodologia:
         plt.title('Regla del codo para determinar k óptimo', loc='left')
         plt.grid(False)
 
-        return [dataframe, fig]#[dataframe,graph1,graph2,fig] 
+        return [dataframe, fig] #[dataframe,graph1,graph2,fig] 
 
 
 
-    def fifth_step(self, dataframe,S_N_cluster,col_analisis = 'AMOUNT',col_date = 'TRANSACTION DATE', col_id_cliente = 'cliente_Skey',num_clusters = 3): # Definición de modelo, predicción de cluster
+    def fifth_step(self, dataframe : pd.DataFrame, S_N_cluster : str | None, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente = 'cliente_Skey', num_clusters : int = 3) -> pd.DataFrame: # Definición de modelo, predicción de cluster
         """
         Generates two graphs and a DataFrame:
         1. Amounts by customer, with clusters assigned.
@@ -422,7 +423,7 @@ class Metodologia:
 
         return dataframe #[dataframe, graph_am_ct_cluster,graph_tr_dt_cluster]
 
-    def sixth_step(self, dataframe, col_analisis = 'AMOUNT',col_id_cliente = 'cliente_Skey'):
+    def sixth_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey') -> pd.DataFrame:
         """
         Generates a DataFrame containing statistical summaries for each cluster based on the specified amount column.
 
@@ -456,7 +457,7 @@ class Metodologia:
 
 
     # Aplicación de lof
-    def seventh_step(self, dataframe,num_cluster,col_analisis = 'AMOUNT', neighbors = 20):
+    def seventh_step(self, dataframe : pd.DataFrame, num_cluster : int, col_analisis : str = 'AMOUNT', neighbors : int = 20) -> pd.DataFrame:
         """
         Generates a DataFrame containing Local Outlier Factor (LOF) scores for each data point based on the specified amount column.
 
@@ -504,12 +505,12 @@ class Metodologia:
         return  lof_data
 
     # Método de redondeo
-    def eight_step(self, umb):
+    def eight_step(self, umb : int | float) -> int:
         """
         Generates a threshold factor to apply a floor adjustment to the given amount based on the specified value.
 
         Parameters:
-        umb (int): The threshold value to which the floor adjustment will be applied. This value will determine the minimum possible value after applying the floor operation.
+        umb (int | float): The threshold value to which the floor adjustment will be applied. This value will determine the minimum possible value after applying the floor operation.
 
         Returns:
         adjusted_value (int): The value after applying the floor adjustment, ensuring it does not fall below the specified threshold.
@@ -546,7 +547,7 @@ class Metodologia:
 
 
     # Caracterización del parámetro
-    def ninth_step(self, dataframe, umb,col_analisis = 'AMOUNT', col_date = 'TRANSACTION DATE', col_id_cliente = 'cliente_Skey'):
+    def ninth_step(self, dataframe: pd.DataFrame, umb,col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey', t : int = 12) -> int:
         """
         Generates a DataFrame containing the results of the methodology, including detected transactions, clients, and related parameters.
 
@@ -554,6 +555,7 @@ class Metodologia:
         dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
         col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
         col_date (str, optional): The name of the column containing the transaction dates to be analyzed. Defaults to 'TRANSACTION DATE' if not provided.
+        t (int, optional): The period of the data in months.
 
         Returns:
         tuple: A tuple containing:
@@ -567,7 +569,7 @@ class Metodologia:
         alertas_generadas = len(dataframe_alertado)
         df_excel = dataframe_alertado[[col_id_cliente,col_analisis,col_date]]
         porcentaje_clientes_monitoreados = clientes_alertados / dataframe[col_id_cliente].nunique()
-        estimado_mes = alertas_generadas / 12
+        estimado_mes = alertas_generadas / t
         data = [umb, dataframe[col_id_cliente].nunique(), monto_total_transado, porcentaje_total_monitoreado * 100, alertas_generadas,
                 porcentaje_clientes_monitoreados * 100, (alertas_generadas / len(dataframe)) * 100, estimado_mes]
 
@@ -579,9 +581,32 @@ class Metodologia:
 
     ################################################
     ####################### POST ###################
-    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t=12, col_analisis='monto', col_date='fecha', col_id_cliente='cliente', title='Alertas generadas vs Umbral'):
+    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t : int = 12, col_analisis : str = 'monto', col_date : str = 'fecha', col_id_cliente : str = 'cliente', title : str = 'Alertas generadas vs Umbral') -> pd.DataFrame:
+        """
+        Analyzes the number of alerts generated for different threshold values and visualizes the results.
+
+        This method iterates over a list of threshold values, applies the alert detection methodology (via `ninth_step`), 
+        collects the number of alerts generated for each threshold, and produces a line plot showing how alerts vary with the threshold.
+
+        Parameters:
+        df (DataFrame): A pandas DataFrame containing transactional data. Must include at least:
+            - A numerical column for analysis (e.g., 'monto').
+            - A date column indicating transaction dates.
+            - A client identifier column.
+        umbrales (list): A list of threshold values to evaluate.
+        t (int, optional): The time period in months used to normalize alerts (defaults to 12 months).
+        col_analisis (str, optional): Name of the column with values to analyze. Defaults to 'monto'.
+        col_date (str, optional): Name of the column with transaction dates. Defaults to 'fecha'.
+        col_id_cliente (str, optional): Name of the column identifying clients. Defaults to 'cliente'.
+        title (str, optional): Title for the generated plot. Defaults to 'Alertas generadas vs Umbral'.
+
+        Returns:
+        DataFrame: A DataFrame summarizing the number of alerts generated for each threshold and the corresponding normalized (monthly) count.
+        """
+        # donde se almacenaran los parametros con sus alertas generadas
         resultados = []
 
+        # loop para valuar varios umbrales
         for umb in umbrales:
             df_resultado, _ = self.ninth_step(df, umb=umb, col_analisis=col_analisis, col_date=col_date, col_id_cliente=col_id_cliente)
             # Asegúrate de que no esté vacío
@@ -592,6 +617,8 @@ class Metodologia:
 
         # Crear DataFrame de resultados
         df_alertas = pd.DataFrame(resultados)
+
+        # calculamos las alertas mensuales
         if isinstance(t, int):
             df_alertas['mensuales'] = df_alertas['Alertas generadas'] / t
         else: 
