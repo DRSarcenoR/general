@@ -316,7 +316,7 @@ class Other:
                 
         pass
 
-    def notebooks_config(self, precision : int = 5, max_rows : int = 30) -> None:
+    def notebooks_config(self, precision : int = 5, max_rows : int = 30, max_cols : int = 50) -> None:
         """
         Configura las opciones de visualización de pandas y numpy para mejorar la legibilidad en notebooks.
 
@@ -328,7 +328,7 @@ class Other:
         warnings.filterwarnings('ignore')
 
         # display options
-        pd.options.display.max_columns=50
+        pd.options.display.max_columns=max_cols
         pd.options.display.max_rows=max_rows
         pd.options.display.expand_frame_repr=False
         pd.options.display.colheader_justify='center'
