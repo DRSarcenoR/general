@@ -1,0 +1,16 @@
+# docker run --rm -v "%cd%:/data" latex-nbconvert \ jupyter nbconvert --to pdf /data/cantidadProductos.ipynb
+# docker run --rm -v "%cd%:/home/jovyan/work" jupyter/datascience-notebook jupyter nbconvert --to pdf /home/jovyan/work/cantidadProductos.ipynb
+# docker run --rm -v "%cd%:/home/jovyan/work" jupyter/datascience-notebook jupyter nbconvert --to latex /home/jovyan/work/cantidadProductos.ipynb
+
+FROM python:3.11-slim
+
+# Instalar nbconvert y LaTeX mínimo
+RUN apt-get update && apt-get install -y \
+    texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-plain-generic \
+    pandoc \
+    && pip install notebook nbconvert \
+    && apt-get clean
+
+WORKDIR /data

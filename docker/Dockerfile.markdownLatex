@@ -1,0 +1,5 @@
+# docker run --rm -v "%cd%:/data" latex-nbconvert \ jupyter nbconvert --to pdf /data/cantidadProductos.ipynb
+# docker run --rm -v "%cd%:/home/jovyan/work" jupyter/datascience-notebook jupyter nbconvert --to pdf /home/jovyan/work/cantidadProductos.ipynb
+
+FROM pandoc/core:latest
+#RUN apt-get update && apt-get install -y texlive-full
