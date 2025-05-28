@@ -42,6 +42,7 @@ import warnings
 import locale
 import time
 from dotenv import load_dotenv
+import re
 
 # archivos del sistema
 import os
@@ -509,7 +510,14 @@ class Other:
             return ''.join(c for c in value if c.isprintable())
         return value
     
-
+    def clean_dataframe(self, df):
+        # Define una expresión regular para caracteres no imprimibles
+        non_printable = re.compile(r'[\x00-\x1F\x7F-\x9F]')
+        
+        # Aplica la limpieza a cada celda del DataFrame
+        df_clean = df.applymap(lambda x: non_printable.sub('', str(x)) if isinstance(x, str) else x)
+    
+        return df_clean
     
     def infoClientes(self, clientes : str | tuple, output : str | None = None) -> tuple | None:
         """
@@ -700,6 +708,12 @@ class Other:
         productos = self.no_imprimibles(productos)
         accionistas = self.no_imprimibles(accionistas)
         beneficiarios = self.no_imprimibles(beneficiarios)
+
+        # quitamos caracteres ilegales
+        infoCliente = self.clean_dataframe(infoCliente)
+        productos = self.clean_dataframe(productos)
+        accionistas = self.clean_dataframe(accionistas)
+        beneficiarios = self.clean_dataframe(beneficiarios)
 
         # en caso que se desee se exporta en un archivo excel
         if output:
