@@ -1,3 +1,6 @@
+declare @fecha_inicio int = 20241201;
+declare @fecha_fin int = 20250531;
+
 with info_clientes as (
         select
             cli.cliente_Skey,
@@ -11,6 +14,8 @@ with info_clientes as (
             cli.estadoCliente,
             cli.fecha_ultima_actualizacion fecha_ultima_actualizacion,
             cli.agencia_ultima_actualizacion,
+			cli.tel1,
+			cli.tel2,
             cli.cliente_pep,
             cli.cliente_cpe,
             cli.tipoPersona,
@@ -48,6 +53,7 @@ with info_clientes as (
             ic.cliente_Skey,
             ic.cod_cliente,
             ic.nombre,
+			col.fac_colocacion_Skey as prod_key,
             col.cod_col_cartera as cod_prod,
             ce.nombre as estado,
 			col.monto_desembolsado as saldo,
@@ -71,6 +77,7 @@ with info_clientes as (
             ic.cliente_Skey,
             ic.cod_cliente,
             ic.nombre,
+			cap.fac_captacion_skey as prod_key,
             cap.cod_cuenta as cod_prod,
             ec.nombre as estado,
 			cap.saldo_disponible as saldo,
@@ -94,6 +101,7 @@ with info_clientes as (
             ic.cliente_Skey,
             ic.cod_cliente,
             ic.nombre,
+			trj.tarjeta_skey as prod_key,
             trj.cod_col_cartera as cod_prod,
             ec.nombre as estado,
 			trj.limite_credito as saldo,
@@ -111,12 +119,146 @@ with info_clientes as (
         join dim_estado_cartera ec on ec.estado_cartera_SKey = trj.estado
         --where trj.estado = 2 -- activa
     ),
+	prom_capt as (
+		select
+			smcap.fac_captacion_Skey,
+			avg(smcap.cantidad_creditos) as cantidad_creditos,
+			avg(smcap.creditos) as creditos,
+			avg(smcap.cantidad_debitos) as cantidad_debitos,
+			avg(smcap.debitos) as debitos
+		from (
+			select
+					mov.fac_captacion_Skey,
+					left(cast(mov.fecha_operacion as varchar), 6) as mes,
+					count(case when trx.tipo_movimiento = 'CREDITO' then 1 else null end) as cantidad_creditos,
+					sum(case when trx.tipo_movimiento = 'CREDITO' then mov.valor_operacion else 0 end) as creditos,
+					count(case when trx.tipo_movimiento = 'DEBITO' then 1 else null end) as cantidad_debitos,
+					sum(case when trx.tipo_movimiento = 'DEBITO' then mov.valor_operacion else 0 end) as debitos
+				from fac_movimientos mov
+				join info_clientes ic on ic.cliente_Skey = mov.cliente_Skey
+				join dim_transacciones trx on trx.trx_Skey = mov.trx_Skey and trx.relacion_cuenta = 'RELACIONADA'
+				where mov.estado_trx_Skey = 1 and mov.fecha_operacion between @fecha_inicio and @fecha_fin --and cliente_Skey is not null and cliente_Skey <> -1
+				group by mov.fac_captacion_Skey, 
+					left(cast(fecha_operacion as varchar), 6)
+			) as smcap
+			group by smcap.fac_captacion_Skey
+	),
+	prom_trj as (
+		select
+			smtrj.tarjeta_skey,
+			avg(smtrj.cantidad_creditos) as cantidad_creditos,
+			-1*avg(smtrj.creditos) as creditos,
+			avg(smtrj.cantidad_debitos) as cantidad_debitos,
+			avg(smtrj.debitos) as debitos
+		from (
+			select	
+				movt.tarjeta_skey,
+				left(cast(movt.fecha_trx as varchar), 6) as mes,
+				count(case when movt.monto <> 0 and movt.cod_trx in (2,11,13,15,30,511,513,730,732,848) then 1 else null end) as cantidad_creditos,
+				sum(case when movt.monto <> 0 and movt.cod_trx in (2,11,13,15,30,511,513,730,732,848) then movt.monto else null end) as creditos,
+				count(case when movt.monto <> 0 and movt.cod_trx not in (2,11,13,15,30,511,513,730,732,848) then 1 else null end) as cantidad_debitos,
+				sum(case when movt.monto <> 0 and movt.cod_trx not in (2,11,13,15,30,511,513,730,732,848) then movt.monto else null end) as debitos
+			from fac_movimientos_tarjeta movt
+			join fac_tarjeta trj on trj.tarjeta_skey = movt.tarjeta_skey
+			join info_clientes ic on ic.cliente_Skey = trj.cliente_Skey
+			where movt.cod_trx not in (5,8,9,10,19,21,22,29,32,41,50,104,451,453,553,554,637,665,671,689,701,715,717,731,733,747,751,754,821,849,851)
+				and movt.fecha_trx between @fecha_inicio and @fecha_fin
+			group by movt.tarjeta_skey,
+				left(cast(movt.fecha_trx as varchar), 6)
+		) as smtrj
+		group by smtrj.tarjeta_skey
+	),
+	prom_col as (
+		select
+			smcol.fac_colocacion_skey,
+			null as cantidad_creditos,
+			null as creditos, 
+			avg(smcol.cantidad_debitos) as cantidad_debitos,
+			avg(smcol.debitos) as debitos
+		from (
+			select
+				movc.fac_colocacion_skey,
+				left(cast(movc.fecha_trx as varchar), 6) as mes,
+				count(case when movc.total <> 0 then 1 else null end) as cantidad_debitos,
+				sum(case when movc.total <> 0 then movc.total else null end) as debitos
+			from fac_movimientos_colocacion movc
+			join fac_colocacion col on col.fac_colocacion_Skey = movc.fac_colocacion_skey
+			join info_clientes ic on ic.cliente_Skey = col.cliente_Skey
+			where movc.trx_col_skey in (1,3) and movc.fecha_trx between @fecha_inicio and @fecha_fin
+			group by movc.fac_colocacion_skey,
+				left(cast(movc.fecha_trx as varchar), 6)
+		) as smcol
+		group by smcol.fac_colocacion_skey
+	),
+	creditos as (
+		select 
+			pcr.cliente_Skey,
+			pcr.cod_cliente,
+			pcr.nombre,
+			pcr.cod_prod,
+			pcr.estado,
+			pcr.saldo,
+			pcr.deuda,
+			pcr.producto,
+			pcr.subproducto,
+			pco.cantidad_creditos,
+			pco.creditos,
+			pco.cantidad_debitos,
+			pco.debitos,
+			pcr.cod_sucursal,
+			pcr.sucursal,
+			pcr.origen
+		from prods_creds pcr 
+		left join prom_col pco on pco.fac_colocacion_skey = pcr.prod_key
+	), 
+	cuentas as (
+		select 
+			pcu.cliente_Skey,
+			pcu.cod_cliente,
+			pcu.nombre,
+			pcu.cod_prod,
+			pcu.estado,
+			pcu.saldo,
+			pcu.deuda,
+			pcu.producto,
+			pcu.subproducto,
+			pct.cantidad_creditos,
+			pct.creditos,
+			pct.cantidad_debitos,
+			pct.debitos,
+			pcu.cod_sucursal,
+			pcu.sucursal,
+			pcu.origen
+		from prods_cuentas pcu
+		left join prom_capt pct on pct.fac_captacion_Skey = pcu.prod_key
+	), 
+	tarjeta as (
+		select 
+			ptr.cliente_Skey,
+			ptr.cod_cliente,
+			ptr.nombre,
+			ptr.cod_prod,
+			ptr.estado,
+			ptr.saldo,
+			ptr.deuda,
+			ptr.producto,
+			ptr.subproducto,
+			ptrj.cantidad_creditos,
+			ptrj.creditos,
+			ptrj.cantidad_debitos,
+			ptrj.debitos,
+			ptr.cod_sucursal,
+			ptr.sucursal,
+			ptr.origen
+		from prods_trj ptr 
+		left join prom_trj ptrj on ptrj.tarjeta_skey = ptr.prod_key
+	), 
     productos as (
-        select * from prods_creds
+        select * from creditos
         union 
-        select * from prods_cuentas
+        select * from cuentas
         union 
-        select * from prods_trj
+        select * from tarjeta
     ),
     accionistas as (
         select
