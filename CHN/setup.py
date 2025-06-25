@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CHN',
-    version='3.3.1',
+    version='3.4.1',
     description='Colección de métodos y funciones útiles para análisis y ciencia de datos, web-scrapping y tareas comunes.',
     author='Diego Sarceño',
     author_email='dsarceno68@gmail.com',
@@ -35,5 +35,5 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='<=3.13.0',
+    python_requires='>=3.13.0',
 )
