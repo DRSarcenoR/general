@@ -891,6 +891,41 @@ class Other:
                 beneficiarios.to_excel(op, sheet_name='BENEFICIARIOS', index=False)
 
         return infoCliente, productos, accionistas, beneficiarios
+    
+
+    # Funcion para dividir en tuplas
+    def dividir_en_tuplas(self, tupla : tuple, max_size : int = 1000) -> list[tuple]:
+        return [tupla[i:i + max_size] for i in range(0, len(tupla), max_size)]
+
+
+    # Función para procesar los clientes en partes manejables
+    def procesar_clientes(self, clientes : tuple) -> list[pd.DataFrame]:
+        # Dividimos la lista de clientes en sublistas de tamaño máximo 1000
+        sublistas = self.dividir_en_tuplas(clientes)
+        
+        # Inicializamos las listas para concatenar los resultados
+        ic_total = []
+        prods_total = []
+        acc_total = []
+        ben_total = []
+
+        # Iteramos sobre las sublistas
+        for sublista in sublistas:
+            ic, prods, acc, ben = self.infoClientes(tuple(sublista))  # Llamamos a la función en cada sublista
+            
+            # Concatenamos los resultados de esta sublista
+            ic_total.append(ic)
+            prods_total.append(prods)
+            acc_total.append(acc)
+            ben_total.append(ben)
+
+        # Concatenamos todos los resultados en un solo DataFrame
+        ic_final = pd.concat(ic_total, ignore_index=True)
+        prods_final = pd.concat(prods_total, ignore_index=True)
+        acc_final = pd.concat(acc_total, ignore_index=True)
+        ben_final = pd.concat(ben_total, ignore_index=True)
+        
+        return ic_final, prods_final, acc_final, ben_final
 
 
 
