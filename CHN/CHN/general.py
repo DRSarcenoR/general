@@ -899,7 +899,7 @@ class Other:
 
 
     # Función para procesar los clientes en partes manejables
-    def procesar_clientes(self, clientes : tuple) -> list[pd.DataFrame]:
+    def procesar_clientes(self, clientes : tuple, output : str | None = None, time_lapse : int = 6) -> list[pd.DataFrame]:
         # Dividimos la lista de clientes en sublistas de tamaño máximo 1000
         sublistas = self.dividir_en_tuplas(clientes)
         
@@ -911,7 +911,7 @@ class Other:
 
         # Iteramos sobre las sublistas
         for sublista in sublistas:
-            ic, prods, acc, ben = self.infoClientes(tuple(sublista))  # Llamamos a la función en cada sublista
+            ic, prods, acc, ben = self.infoClientes(tuple(sublista), time_lapse=time_lapse)  # Llamamos a la función en cada sublista
             
             # Concatenamos los resultados de esta sublista
             ic_total.append(ic)
@@ -924,6 +924,15 @@ class Other:
         prods_final = pd.concat(prods_total, ignore_index=True)
         acc_final = pd.concat(acc_total, ignore_index=True)
         ben_final = pd.concat(ben_total, ignore_index=True)
+
+
+        # en caso que se desee se exporta en un archivo excel
+        if output:
+            with pd.ExcelWriter(output, engine='openpyxl') as op:
+                ic_final.to_excel(op, sheet_name='INFOCLIENTE', index=False)
+                prods_final.to_excel(op, sheet_name='PRODUCTOS', index=False)
+                acc_final.to_excel(op, sheet_name='ACCIONISTAS', index=False)
+                ben_final.to_excel(op, sheet_name='BENEFICIARIOS', index=False)
         
         return ic_final, prods_final, acc_final, ben_final
 
