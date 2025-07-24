@@ -1297,7 +1297,7 @@ class Analysis:
         return pd.Series(result, index=series.index, name=series.name)
     
 
-    def describe_categorical(data: pd.DataFrame, column: str) -> None:
+    def describe_categorical(self, data: pd.DataFrame, column: str) -> None:
         """
         Muestra un resumen de frecuencias para una columna categórica.
 
