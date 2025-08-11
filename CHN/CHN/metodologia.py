@@ -46,7 +46,7 @@ import os
 
 
 class Metodologia:
-    def __init__(self) -> None:
+    def __init__(self, cliente: str, fecha: str, analisis: str) -> None:
         # Creamos un dataframe donde se estará guardando toda la información
         # Nombres de las columnas
         columns = ['Parámetro', 'Clientes totales', 'Monto total transado en el periodo', 'Monto total monitoreado (%)', 'Alertas generadas',
@@ -54,6 +54,11 @@ class Metodologia:
 
         # Creamos el dataframe
         self.resultados = pd.DataFrame(columns=columns)
+
+        # definimos para toda la clase los nombres de las columnas
+        self.cliente = cliente
+        self.fecha = fecha
+        self.analisis = analisis
 
     
     def estats_base(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_cliente : str = 'cliente_Skey') -> tuple[float, int]:
