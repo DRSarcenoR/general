@@ -586,52 +586,103 @@ class Metodologia:
 
     ################################################
     ####################### POST ###################
-    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t : int = 12, col_analisis : str = 'monto', col_date : str = 'fecha', col_id_cliente : str = 'cliente', title : str = 'Alertas generadas vs Umbral') -> pd.DataFrame:
+    #def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t : int = 12, col_analisis : str = 'monto', col_date : str = 'fecha', col_id_cliente : str = 'cliente', title : str = 'Alertas generadas vs Umbral') -> pd.DataFrame:
+    #    """
+    #    Analyzes the number of alerts generated for different threshold values and visualizes the results.
+#
+    #    This method iterates over a list of threshold values, applies the alert detection methodology (via `ninth_step`), 
+    #    collects the number of alerts generated for each threshold, and produces a line plot showing how alerts vary with the threshold.
+#
+    #    Parameters:
+    #    df (DataFrame): A pandas DataFrame containing transactional data. Must include at least:
+    #        - A numerical column for analysis (e.g., 'monto').
+    #        - A date column indicating transaction dates.
+    #        - A client identifier column.
+    #    umbrales (list): A list of threshold values to evaluate.
+    #    t (int, optional): The time period in months used to normalize alerts (defaults to 12 months).
+    #    col_analisis (str, optional): Name of the column with values to analyze. Defaults to 'monto'.
+    #    col_date (str, optional): Name of the column with transaction dates. Defaults to 'fecha'.
+    #    col_id_cliente (str, optional): Name of the column identifying clients. Defaults to 'cliente'.
+    #    title (str, optional): Title for the generated plot. Defaults to 'Alertas generadas vs Umbral'.
+#
+    #    Returns:
+    #    DataFrame: A DataFrame summarizing the number of alerts generated for each threshold and the corresponding normalized (monthly) count.
+    #    """
+    #    # donde se almacenaran los parametros con sus alertas generadas
+    #    resultados = []
+#
+    #    # loop para valuar varios umbrales
+    #    for umb in umbrales:
+    #        df_resultado, _ = self.ninth_step(df, umb=umb, col_analisis=col_analisis, col_date=col_date, col_id_cliente=col_id_cliente)
+    #        # Asegúrate de que no esté vacío
+    #        if not df_resultado.empty:
+    #            parametro = df_resultado.loc[0, 'Parámetro']
+    #            alertas = df_resultado.loc[0, 'Alertas generadas']
+    #            resultados.append({'Umbral': parametro, 'Alertas generadas': alertas})
+#
+    #    # Crear DataFrame de resultados
+    #    df_alertas = pd.DataFrame(resultados)
+#
+    #    # calculamos las alertas mensuales
+    #    if isinstance(t, int):
+    #        df_alertas['mensuales'] = df_alertas['Alertas generadas'] / t
+    #    else: 
+    #        df_alertas['mensuales'] = df_alertas['Alertas generadas'] / 12
+#
+    #    # Graficar
+    #    plt.figure(figsize=(10, 6))
+    #    plt.plot(df_alertas['Umbral'], df_alertas['mensuales'], marker='o')
+    #    plt.title(title)
+    #    plt.xlabel('Umbral')
+    #    plt.ylabel('Alertas Generadas x Mes')
+    #    plt.grid(True)
+    #    plt.tight_layout()
+    #    plt.show()
+#
+    #    return df_alertas
+
+
+    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t: int = 12,
+                                    col_analisis: str = 'monto', col_date: str = 'fecha',
+                                    col_id_cliente: str = 'cliente', title: str = 'Alertas generadas vs Umbral',
+                                    umbral_destacado: float = None) -> pd.DataFrame:
         """
-        Analyzes the number of alerts generated for different threshold values and visualizes the results.
+        Analiza el número de alertas generadas para distintos valores de umbral y visualiza los resultados,
+        con opción de destacar un umbral específico en rojo.
 
-        This method iterates over a list of threshold values, applies the alert detection methodology (via `ninth_step`), 
-        collects the number of alerts generated for each threshold, and produces a line plot showing how alerts vary with the threshold.
-
-        Parameters:
-        df (DataFrame): A pandas DataFrame containing transactional data. Must include at least:
-            - A numerical column for analysis (e.g., 'monto').
-            - A date column indicating transaction dates.
-            - A client identifier column.
-        umbrales (list): A list of threshold values to evaluate.
-        t (int, optional): The time period in months used to normalize alerts (defaults to 12 months).
-        col_analisis (str, optional): Name of the column with values to analyze. Defaults to 'monto'.
-        col_date (str, optional): Name of the column with transaction dates. Defaults to 'fecha'.
-        col_id_cliente (str, optional): Name of the column identifying clients. Defaults to 'cliente'.
-        title (str, optional): Title for the generated plot. Defaults to 'Alertas generadas vs Umbral'.
-
-        Returns:
-        DataFrame: A DataFrame summarizing the number of alerts generated for each threshold and the corresponding normalized (monthly) count.
+        Parámetros adicionales:
+        umbral_destacado (float, opcional): Si se pasa un número, se mostrará en rojo en la gráfica.
         """
-        # donde se almacenaran los parametros con sus alertas generadas
         resultados = []
 
-        # loop para valuar varios umbrales
+        # Loop para evaluar distintos umbrales
         for umb in umbrales:
             df_resultado, _ = self.ninth_step(df, umb=umb, col_analisis=col_analisis, col_date=col_date, col_id_cliente=col_id_cliente)
-            # Asegúrate de que no esté vacío
             if not df_resultado.empty:
                 parametro = df_resultado.loc[0, 'Parámetro']
                 alertas = df_resultado.loc[0, 'Alertas generadas']
                 resultados.append({'Umbral': parametro, 'Alertas generadas': alertas})
 
-        # Crear DataFrame de resultados
         df_alertas = pd.DataFrame(resultados)
 
-        # calculamos las alertas mensuales
-        if isinstance(t, int):
-            df_alertas['mensuales'] = df_alertas['Alertas generadas'] / t
-        else: 
-            df_alertas['mensuales'] = df_alertas['Alertas generadas'] / 12
+        # Calculamos alertas mensuales
+        df_alertas['mensuales'] = df_alertas['Alertas generadas'] / t
+
+        # Si hay un umbral destacado, ajustamos la lista
+        if umbral_destacado is not None:
+            if umbral_destacado not in df_alertas['Umbral'].values:
+                # Agregamos el umbral destacado con alertas = NaN temporalmente
+                df_alertas = pd.concat([df_alertas, pd.DataFrame([{'Umbral': umbral_destacado, 'Alertas generadas': 0, 'mensuales': 0}])])
+                df_alertas = df_alertas.sort_values('Umbral').reset_index(drop=True)
+            # Creamos una columna de colores
+            df_alertas['color'] = ['red' if x == umbral_destacado else 'blue' for x in df_alertas['Umbral']]
+        else:
+            df_alertas['color'] = 'blue'
 
         # Graficar
         plt.figure(figsize=(10, 6))
-        plt.plot(df_alertas['Umbral'], df_alertas['mensuales'], marker='o')
+        plt.scatter(df_alertas['Umbral'], df_alertas['mensuales'], c=df_alertas['color'], s=100, zorder=2)
+        plt.plot(df_alertas['Umbral'], df_alertas['mensuales'], color='blue', zorder=1)
         plt.title(title)
         plt.xlabel('Umbral')
         plt.ylabel('Alertas Generadas x Mes')
