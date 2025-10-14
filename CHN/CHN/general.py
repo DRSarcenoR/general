@@ -1029,7 +1029,7 @@ class Analysis:
     def __init__(self) -> None:
         pass
 
-    def read_lots_excels(self, path : str) -> list[pd.DataFrame]:
+    def read_lots_excels(self, path : str, dtype : dict | None = None) -> list[pd.DataFrame]:
         """
         Lee múltiples archivos Excel de una carpeta dada.
 
@@ -1061,7 +1061,7 @@ class Analysis:
                 ruta_archivo = os.path.join(path, archivo)
                 print(f"Leyendo el archivo: {ruta_archivo}")
                 try: 
-                    df = pd.read_excel(ruta_archivo)
+                    df = pd.read_excel(ruta_archivo, dtype=dtype)
                     dfs.append(df)
                 except Exception as e:
                     print(f"Error al leer el archivo '{ruta_archivo}': {e}")
