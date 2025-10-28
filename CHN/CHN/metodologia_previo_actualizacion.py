@@ -1,4 +1,4 @@
-# Módulo 3 de Librería de Utilidades
+# Módulo 3 de Librería de la Metodología.
 # 
 # Metodología de Parametrización de Banderas
 # 
@@ -46,7 +46,7 @@ import os
 
 
 class Metodologia:
-    def __init__(self, dataframe: pd.DataFrame, cliente: str, fecha: str, analisis: str) -> None:
+    def __init__(self, cliente: str, fecha: str, analisis: str) -> None:
         # Creamos un dataframe donde se estará guardando toda la información
         # Nombres de las columnas
         columns = ['Parámetro', 'Clientes totales', 'Monto total transado en el periodo', 'Monto total monitoreado (%)', 'Alertas generadas',
@@ -56,16 +56,12 @@ class Metodologia:
         self.resultados = pd.DataFrame(columns=columns)
 
         # definimos para toda la clase los nombres de las columnas
-        self.col_cliente = cliente
-        self.col_date = fecha
-        self.col_analisis = analisis
-
-        # dataframe para guardar la copia previo a quitar los outliers
-        self.og_dataframe = dataframe
-        self.dataframe = dataframe
+        self.cliente = cliente
+        self.fecha = fecha
+        self.analisis = analisis
 
     
-    def estats_base(self, dataframe : pd.DataFrame, col_analisis : str, col_cliente : str) -> tuple[float, int]:
+    def estats_base(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_cliente : str = 'cliente_Skey') -> tuple[float, int]:
         """
         Calculates the total sum of the specified amounts and the count of clients to analyze.
 
@@ -93,7 +89,7 @@ class Metodologia:
         return False
 
 
-    def plot_total_amount_by_transaction_date(self, dataframe : pd.DataFrame, col_analisis : str, col_date : str,  horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
+    def plot_total_amount_by_transaction_date(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str ='TRANSACTION DATE',  horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """'
         Creates and returns a bar chart of total amounts by transaction date.
 
@@ -138,7 +134,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_customer_cluster(self, dataframe : pd.DataFrame, col_analisis : str, col_id_cliente : str, horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
+    def plot_total_amount_by_customer_cluster(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey',horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """'
         Creates and returns a scatter plot of total amounts by customer, grouped by cluster or quantile.
 
@@ -164,7 +160,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_transaction_date_cluster(self, dataframe : pd.DataFrame, col_analisis : str, col_date : str, horizontal_line_value : bool | None  = None,) -> matplotlib.figure.Figure:
+    def plot_total_amount_by_transaction_date_cluster(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION FECHA', horizontal_line_value : bool | None  = None,) -> matplotlib.figure.Figure:
         """
         Creates and returns a scatter plot of total amounts by transaction date, grouped by cluster or quantile.
 
@@ -199,7 +195,7 @@ class Metodologia:
         return fig
 
 
-    def plot_total_amount_by_customer(self, dataframe : pd.DataFrame, col_analisis : str, col_id_cliente : str, horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
+    def plot_total_amount_by_customer(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str ='cliente_Skey', horizontal_line_value : bool | None = None) -> matplotlib.figure.Figure:
         """
         Creates and returns a bar chart of total amounts by customer.
 
@@ -233,7 +229,7 @@ class Metodologia:
 
 
     # Función para creación de tablas de quantiles
-    def quantile_table(self, dataframe : pd.DataFrame, col_analisis : str) -> pd.DataFrame:
+    def quantile_table(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT') -> pd.DataFrame:
         """
         Generates quantile values from the 75th percentile to the 100th percentile in steps of 1%.
 
@@ -266,12 +262,13 @@ class Metodologia:
 
 
     # ---------------------------- STEPS --------------------------------------------- >
-    def first_step(self) -> tuple[float, int]: # Mostrar monto y clientes totales
+    def first_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey') -> tuple[float, int]: # Mostrar monto y clientes totales
         """
         Calls the 'estats_base' function to calculate the total sum of amounts and the count of unique clients.
 
         Parameters:
         dataframe (DataFrame): A pandas DataFrame containing a column with numerical values, typically 'AMOUNT', and a column identifying unique clients (e.g., 'cliente_Skey').
+        col_analisis (str, optional): The name of the column containing the values to be analyzed. Defaults to 'AMOUNT' if not provided.
 
         Returns:
         tuple: A tuple containing:
@@ -279,14 +276,17 @@ class Metodologia:
             - ct (int): The count of unique clients, determined from the 'cliente_Skey' column in the DataFrame.
         """
         # Monto total y clientes totales
-        mt, ct = self.estats_base(self.dataframe, self.col_analisis, self.col_cliente)
+        mt, ct = self.estats_base(dataframe, col_analisis,col_id_cliente)
         return mt, ct
 
-    def second_step(self) -> tuple[matplotlib.figure.Figure, matplotlib.figure.Figure]: # Primeras gráficas: clientes vs montos y fechas vs montos
+    def second_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey') -> tuple[matplotlib.figure.Figure, matplotlib.figure.Figure]: # Primeras gráficas: clientes vs montos y fechas vs montos
         """
         Generates two graphs: one showing the total amounts by customer, and another showing the total amounts by transaction date.
 
         Parameters:
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and one with transaction dates (e.g., 'TRANSACTION DATE').
+        col_analisis (str, optional): The name of the column containing the amounts to be analyzed. Defaults to 'AMOUNT' if not provided.
+        col_date (str, optional): The name of the column containing the transaction dates to be analyzed. Defaults to 'TRANSACTION DATE' if not provided.
 
         Returns:
         list: A list containing two plotly.graph_objects.Figure objects:
@@ -294,27 +294,29 @@ class Metodologia:
             - graph_am_tr_date (Figure): A graph showing the total amounts by transaction date.
         """
         # Graficar montos contra fechas y montos contra código de cliente
-        graph_am_cust = self.plot_total_amount_by_customer(self.dataframe, self.col_analisis, self.col_cliente)
-        graph_am_tr_date = self.plot_total_amount_by_transaction_date(self.dataframe, self.col_analisis, self.col_date)
+        graph_am_cust = self.plot_total_amount_by_customer(dataframe, col_analisis,col_id_cliente)
+        graph_am_tr_date = self.plot_total_amount_by_transaction_date(dataframe,col_analisis, col_date)
 
         return [graph_am_cust,graph_am_tr_date]
 
 
-    def third_step(self) -> pd.DataFrame: # Tabla de quantiles
+    def third_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT') -> pd.DataFrame: # Tabla de quantiles
         """
         Generates an HTML table displaying the quantiles of data from the 75th percentile to the 100th percentile. (not HTML anymore, holy shit that is fucking ugly)
 
         Parameters:
+        dataframe (DataFrame): A pandas DataFrame containing at least one column with numerical values (typically 'AMOUNT').
+        col_analisis (str, optional): The name of the column containing the values to be analyzed. Defaults to 'AMOUNT' if not provided.
 
         Returns:
         str: An HTML table (as a string) displaying the quantiles of the specified column. The table includes quantiles from the 75th to the 100th percentile.
         """
-        table = self.quantile_table(self.dataframe, self.col_analisis)#.to_html(index = False)
+        html_table = self.quantile_table(dataframe,col_analisis)#.to_html(index = False)
 
-        return table
+        return html_table
     
 
-    def forth_step(self, cquant : int | bool = False, quantile : int = 0.95) -> tuple[pd.DataFrame, matplotlib.figure.Figure]: # Selección del model
+    def forth_step(self, dataframe : pd.DataFrame, S_N_quantile : str | None, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey', quantile : int = 0.95) -> tuple[pd.DataFrame, matplotlib.figure.Figure]: # Selección del model
         """
         Generates three graphs:
         1. Total amount by customer, with a horizontal line representing the data cutoff for training.
@@ -322,8 +324,10 @@ class Metodologia:
         3. The elbow method graph to help select the optimal number of clusters for data analysis.
 
         Parameters:
-
-        cquant (str): A boolean (or 1/0) value to specify whether the quantile cutoff should be different from the default.
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
+        S_N_quantile (str): A 'Si' or 'No' value to specify whether the quantile cutoff should be different from the default.
+        col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
+        col_date (str, optional): The name of the column containing the transaction dates to be analyzed. Defaults to 'TRANSACTION DATE' if not provided.
 
         Returns:
         list: A list containing:
@@ -332,7 +336,7 @@ class Metodologia:
             - graph2 (Fig): A figure showing total amount by transaction date with a percentile line indicating the cutoff.
             - elbow_graph (Fig): A figure representing the elbow rule to select the optimal number of clusters.
         """
-        if cquant:
+        if S_N_quantile == "Si":
             # Seleccionar el quantile adecuado
             try:
                 #quantile = float(input("Seleccione un quantile (entre 75% y 99% inclusive)"))
@@ -346,7 +350,7 @@ class Metodologia:
                 print(e)
 
         # Eliminamos a partir del 95%
-        percentile_95 = self.dataframe[self.col_analisis].quantile(quantile)
+        percentile_95 = dataframe[col_analisis].quantile(quantile)
 
         # Graficamos a partir del corte
         #graph1 = self.plot_total_amount_by_customer(dataframe,col_analisis,col_id_cliente, percentile_95)
@@ -357,16 +361,16 @@ class Metodologia:
         #graph2.show()
 
         # Filtramos los datos
-        self.dataframe = self.dataframe[self.dataframe[self.col_analisis] <= percentile_95]
+        dataframe = dataframe[dataframe[col_analisis] <= percentile_95]
 
         # Extraer la variable 'AMOUNT' para el entrenamiento
-        x = self.dataframe[[self.col_analisis]].values
+        x = dataframe[[col_analisis]].values
 
         # Lista para almacenar las inercias
         inertia = []
 
         # Probar con k desde 1 hasta 10
-        k_range = range(1, min(11, len(self.dataframe)))
+        k_range = range(1, min(11, len(dataframe)))
         for k in k_range:
             kmeans = KMeans(n_clusters=k, random_state=0)
             kmeans.fit(x)
@@ -380,11 +384,11 @@ class Metodologia:
         plt.title('Regla del codo para determinar k óptimo', loc='left')
         plt.grid(False)
 
-        return [self.dataframe, fig] #[dataframe,graph1,graph2,fig] 
+        return [dataframe, fig] #[dataframe,graph1,graph2,fig] 
 
 
 
-    def fifth_step(self, cluster : int | bool = False, num_clusters : int = 3) -> pd.DataFrame: # Definición de modelo, predicción de cluster
+    def fifth_step(self, dataframe : pd.DataFrame, S_N_cluster : str | None, col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente = 'cliente_Skey', num_clusters : int = 3) -> pd.DataFrame: # Definición de modelo, predicción de cluster
         """
         Generates two graphs and a DataFrame:
         1. Amounts by customer, with clusters assigned.
@@ -392,7 +396,10 @@ class Metodologia:
         3. A DataFrame with a new 'Cluster' column indicating the assigned cluster for each data point.
 
         Parameters:
-        cluster (str): A boolean (or 1/0) indicating whether the number of clusters should differ from the default. If 'Yes', a custom number of clusters can be specified.
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
+        S_N_cluster (str): A 'Yes' or 'No' value indicating whether the number of clusters should differ from the default. If 'Yes', a custom number of clusters can be specified.
+        col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
+        col_date (str, optional): The name of the column containing the transaction dates to be analyzed. Defaults to 'TRANSACTION DATE' if not provided.
 
         Returns:
         list: A list containing:
@@ -400,7 +407,7 @@ class Metodologia:
             - graph_am_ct_cluster (Figure): A figure showing the amounts by customer, with clusters visually assigned.
             - graph_tr_dt_cluster (Figure): A figure showing the amounts by transaction date, with clusters visually assigned.
         """
-        if cluster:
+        if S_N_cluster == "Si":
             # Seleccionar la cantidad de clusters adecuados
             try:
                 if not (0 < num_clusters < 11):
@@ -409,31 +416,33 @@ class Metodologia:
                 print(e)
 
         # Extraer la variable 'AMOUNT' para el entrenamiento
-        x = self.dataframe[[self.col_analisis]].values
+        x = dataframe[[col_analisis]].values
         
         kmeans = KMeans(n_clusters=num_clusters, random_state=0)
 
-        self.dataframe['Cluster'] = kmeans.fit_predict(x)
+        dataframe['Cluster'] = kmeans.fit_predict(x)
 
         # Call plotting functions to generate the graphs
         #graph_am_ct_cluster = self.plot_total_amount_by_customer_cluster(dataframe, col_analisis, col_id_cliente)
         #graph_tr_dt_cluster = self.plot_total_amount_by_transaction_date_cluster(dataframe, col_analisis,col_date)
 
-        return self.dataframe #[dataframe, graph_am_ct_cluster,graph_tr_dt_cluster]
+        return dataframe #[dataframe, graph_am_ct_cluster,graph_tr_dt_cluster]
 
-    def sixth_step(self) -> pd.DataFrame:
+    def sixth_step(self, dataframe : pd.DataFrame, col_analisis : str = 'AMOUNT', col_id_cliente : str = 'cliente_Skey') -> pd.DataFrame:
         """
         Generates a DataFrame containing statistical summaries for each cluster based on the specified amount column.
 
         Parameters:
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
+        col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
 
         Returns:
         cluster_stats (DataFrame): A DataFrame containing statistical summaries (e.g., mean, median, standard deviation) for each cluster, based on the specified amount column.
         """
         # Creamos una nueva tabla con las estadísticas
-        cluster_stats = self.dataframe.groupby('Cluster').agg({
-            self.col_cliente: 'nunique',  # Número de clientes únicos
-            self.col_analisis: ['count','min', 'max', 'mean', 'std', 'sum']  # Estadísticas para el monto
+        cluster_stats = dataframe.groupby('Cluster').agg({
+            col_id_cliente: 'nunique',  # Número de clientes únicos
+            col_analisis: ['count','min', 'max', 'mean', 'std', 'sum']  # Estadísticas para el monto
         }).reset_index()
 
         # Renombrar las columnas para claridad
@@ -453,12 +462,13 @@ class Metodologia:
 
 
     # Aplicación de lof
-    def seventh_step(self, num_cluster : int, neighbors : int = 20) -> pd.DataFrame:
+    def seventh_step(self, dataframe : pd.DataFrame, num_cluster : int, col_analisis : str = 'AMOUNT', neighbors : int = 20) -> pd.DataFrame:
         """
         Generates a DataFrame containing Local Outlier Factor (LOF) scores for each data point based on the specified amount column.
 
         Parameters:
-        num_cluster (int): The cluster's number to apply LOF.
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
+        col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
         neighbors (int): The number of neighbors to use for LOF calculation. This parameter controls the sensitivity of the anomaly detection.
 
         Returns:
@@ -466,13 +476,13 @@ class Metodologia:
         """
         # Seleccionar el cluster para aplicar LOF
         try:
-            if not (0 <=  num_cluster <= self.dataframe['Cluster'].max()):
-                raise ValueError(f"El valor {0} no se encuentra entre 1 y {1}.".format(num_cluster, self.dataframe['Cluster'].max()))
+            if not (0 <=  num_cluster <= dataframe['Cluster'].max()):
+                raise ValueError(f"El valor {0} no se encuentra entre 1 y {1}.".format(num_cluster, dataframe['Cluster'].max()))
         except ValueError as e:
             print(e)
             return
         # Filtramos para tener la información solo del último cluster
-        last_cluster_data = self.dataframe[self.dataframe['Cluster'] == num_cluster][[self.col_analisis, 'Cluster']]
+        last_cluster_data = dataframe[dataframe['Cluster'] == num_cluster][[col_analisis, 'Cluster']]
 
         # Aplicar LOF al Cluster seleccionado
         lof = LocalOutlierFactor(n_neighbors=neighbors)
@@ -483,104 +493,21 @@ class Metodologia:
         positive_lof_scores = -negative_lof_scores  # Convert to positive
 
         # Crear un DataFrame para los punteos LOF y la data
-        lof_data = pd.DataFrame(last_cluster_data, columns=[self.col_analisis])
+        lof_data = pd.DataFrame(last_cluster_data, columns=[col_analisis])
         lof_data['LOF_Score'] = positive_lof_scores
 
         # Ordenamos los datos
-        lof_data = lof_data.sort_values(by=['LOF_Score', self.col_analisis])
+        lof_data = lof_data.sort_values(by=['LOF_Score', col_analisis])
         # Filtrar los datos para cuando LOF es mayor que 1 y ordenamos por el punteo 
         lof_data = lof_data[lof_data['LOF_Score'] > 1.10]
 
-        lof_data = lof_data.rename(columns = {self.col_analisis:'Monto','LOF_Score':'Valor atípico local'})
+        lof_data = lof_data.rename(columns = {col_analisis:'Monto','LOF_Score':'Valor atípico local'})
 
         lof_data =  lof_data.T.reset_index()
         #lof_data.columns =  [None] *  len(lof_data.columns)
 
-        # agregamos el índice
-        lof_data = lof_data.set_index('index')
-
+    
         return  lof_data
-
-
-
-    ###############################################################################
-    def apoyo_seventh_step(self, result_seventh_step : pd.DataFrame, valor_lof : float = 1.5) -> pd.DataFrame:
-        """
-        Filters columns in a DataFrame based on row-wise criteria, identifies the minimum
-        value from row 0 within the filtered subset, and returns both the filtered data
-        and a reshaped view for easier analysis.
-
-        Workflow
-        --------
-        1. Applies two column-wise filters using positional row indices:
-        - Row 1 values must be greater than `valor_lof`.
-        - Row 0 values must be greater than 0.
-        2. Keeps only the columns satisfying both filters.
-        3. Finds the column with the minimum value in row 0 within this filtered subset.
-        4. Reshapes the filtered DataFrame:
-        - Uses `pd.melt()` to transform it into a long format (with `ID` as the column name).
-        - Pivots it back to wide format so each original row index becomes a column.
-        - Sorts the resulting DataFrame by the "Monto" column.
-
-        Parameters
-        ----------
-        result_seventh_step : pandas.DataFrame
-            Input DataFrame. Expected structure:
-            - Row at position 1 contains numeric scores (e.g., LOF or anomaly scores)
-            compared against the `valor_lof` threshold.
-            - Row at position 0 contains numeric values (e.g., amounts or metrics) used
-            for filtering and finding the minimum value.
-            - The DataFrame index is preserved when calling `reset_index()`, producing
-            a column named 'index'.
-            - After pivoting, the resulting DataFrame should include a column named
-            "Monto" for sorting; otherwise, adjust the column name in the code.
-
-        valor_lof : float, optional (default = 1.5)
-            Threshold applied to row 1 values to determine which columns are retained.
-            Controls the strictness of the filtering.
-
-        Returns
-        -------
-        valor_min : float
-            The minimum value from row 0 within the filtered subset.
-        sevstep_filt : pandas.DataFrame
-            The filtered subset of `result_seventh_step` containing only columns that
-            met both criteria.
-        pivoted : pandas.DataFrame
-            A reshaped version of the filtered data (melted and pivoted), sorted by
-            the "Monto" column.
-
-        Notes
-        -----
-        - If no columns meet the filter criteria, attempting to compute the minimum
-        will raise an error (e.g., `ValueError` or `KeyError`).
-        - The final sorting step assumes a column named "Monto" exists after pivoting.
-        Rename or modify the sort key if your data uses a different label.
-        """
-        # Filtros
-        filtro_fila1 = result_seventh_step.iloc[1] > valor_lof
-        filtro_fila0 = result_seventh_step.iloc[0] > 0
-
-        # Columnas que cumplen ambos filtros
-        columnas_filtradas = result_seventh_step.columns[filtro_fila1 & filtro_fila0]
-
-        # Aplicar filtro
-        sevstep_filt = result_seventh_step.loc[:, columnas_filtradas]
-
-        # Encontrar la columna con el valor mínimo en la fila 0
-        col_min_valor_fila0 = sevstep_filt.iloc[0].idxmin()
-
-        # Si también quieres el valor:
-        valor_min = sevstep_filt.iloc[0][col_min_valor_fila0]
-
-        # derretimos el dataframe
-        melted = pd.melt(sevstep_filt.reset_index(), id_vars=['index'], var_name='ID', value_name='Valor')
-
-        # pivoteamos para verlo bien
-        pivoted = melted.pivot(index='ID', columns='index', values='Valor').reset_index().sort_values(by='Monto')
-        return valor_min, sevstep_filt, pivoted
-    ###############################################################################
-
 
     # Método de redondeo
     def eight_step(self, umb : int | float) -> int:
@@ -625,11 +552,14 @@ class Metodologia:
 
 
     # Caracterización del parámetro
-    def ninth_step(self, umb : int, t : int = 12) -> int:
+    def ninth_step(self, dataframe: pd.DataFrame, umb,col_analisis : str = 'AMOUNT', col_date : str = 'TRANSACTION DATE', col_id_cliente : str = 'cliente_Skey', t : int = 12) -> int:
         """
         Generates a DataFrame containing the results of the methodology, including detected transactions, clients, and related parameters.
 
         Parameters:
+        dataframe (DataFrame): A pandas DataFrame containing at least two columns: one with numerical values (typically 'AMOUNT') and another with date values (e.g., 'TRANSACTION DATE').
+        col_analisis (str, optional): The name of the column containing the values to be analyzed (e.g., 'AMOUNT'). Defaults to 'AMOUNT' if not provided.
+        col_date (str, optional): The name of the column containing the transaction dates to be analyzed. Defaults to 'TRANSACTION DATE' if not provided.
         t (int, optional): The period of the data in months.
 
         Returns:
@@ -637,16 +567,16 @@ class Metodologia:
             - new_row (DataFrame): A DataFrame containing the results of the methodology, such as detected transactions, clients, and associated parameters.
             - df_excel (DataFrame): A DataFrame with the amounts categorized as alerts for further analysis or reporting.
         """
-        dataframe_alertado = self.og_dataframe[self.og_dataframe[self.col_analisis] >= umb]
-        clientes_alertados = dataframe_alertado[self.col_cliente].nunique()
-        monto_total_transado = self.og_dataframe[self.col_analisis].sum()
-        porcentaje_total_monitoreado = dataframe_alertado[self.col_analisis].sum()/monto_total_transado
+        dataframe_alertado = dataframe[dataframe[col_analisis] >= umb]
+        clientes_alertados = dataframe_alertado[col_id_cliente].nunique()
+        monto_total_transado = dataframe[col_analisis].sum()
+        porcentaje_total_monitoreado = dataframe_alertado[col_analisis].sum()/monto_total_transado
         alertas_generadas = len(dataframe_alertado)
-        df_excel = dataframe_alertado[[self.col_cliente, self.col_analisis, self.col_date]]
-        porcentaje_clientes_monitoreados = clientes_alertados / self.og_dataframe[self.col_cliente].nunique()
+        df_excel = dataframe_alertado[[col_id_cliente,col_analisis,col_date]]
+        porcentaje_clientes_monitoreados = clientes_alertados / dataframe[col_id_cliente].nunique()
         estimado_mes = alertas_generadas / t
-        data = [umb, self.og_dataframe[self.col_cliente].nunique(), monto_total_transado, porcentaje_total_monitoreado * 100, alertas_generadas,
-                porcentaje_clientes_monitoreados * 100, (alertas_generadas / len(self.og_dataframe)) * 100, estimado_mes]
+        data = [umb, dataframe[col_id_cliente].nunique(), monto_total_transado, porcentaje_total_monitoreado * 100, alertas_generadas,
+                porcentaje_clientes_monitoreados * 100, (alertas_generadas / len(dataframe)) * 100, estimado_mes]
 
 
         # Creamos un DataFrame con la información que queremos agregar
@@ -712,7 +642,10 @@ class Metodologia:
     #    return df_alertas
 
 
-    def analizar_alertas_por_umbral(self, umbrales: list, t: int = 12, title: str = 'Alertas generadas vs Umbral', umbral_destacado: float = None) -> pd.DataFrame:
+    def analizar_alertas_por_umbral(self, df: pd.DataFrame, umbrales: list, t: int = 12,
+                                    col_analisis: str = 'monto', col_date: str = 'fecha',
+                                    col_id_cliente: str = 'cliente', title: str = 'Alertas generadas vs Umbral',
+                                    umbral_destacado: float = None) -> pd.DataFrame:
         """
         Analiza el número de alertas generadas para distintos valores de umbral y visualiza los resultados,
         con opción de destacar un umbral específico en rojo.
@@ -724,7 +657,7 @@ class Metodologia:
 
         # Loop para evaluar distintos umbrales
         for umb in umbrales:
-            df_resultado, _ = self.ninth_step(self.og_dataframe, umb=umb, col_analisis=self.col_analisis, col_date=self.col_date, col_id_cliente=self.col_cliente)
+            df_resultado, _ = self.ninth_step(df, umb=umb, col_analisis=col_analisis, col_date=col_date, col_id_cliente=col_id_cliente)
             if not df_resultado.empty:
                 parametro = df_resultado.loc[0, 'Parámetro']
                 alertas = df_resultado.loc[0, 'Alertas generadas']
